@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { db } from "../firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -16,17 +19,32 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mock submission - would connect to Firebase later
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you soon.",
-    });
-    
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, "messages"), {
+        ...formData,
+        timestamp: new Date(),
+        read: false,
+      });
+      toast({
+        title: "Message Sent!",
+        description: "Thank you for contacting us. We'll get back to you soon.",
+      });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error("Error sending message: ", error);
+      toast({
+        title: "Submission Error",
+        description: "Could not send your message. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,7 +78,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
@@ -96,7 +114,7 @@ const Contact = () => {
                       className="mt-2"
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -110,7 +128,7 @@ const Contact = () => {
                       className="mt-2"
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="subject">Subject</Label>
                     <Input
@@ -123,7 +141,7 @@ const Contact = () => {
                       className="mt-2"
                     />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="message">Message</Label>
                     <Textarea
@@ -136,9 +154,9 @@ const Contact = () => {
                       className="mt-2 min-h-[150px]"
                     />
                   </div>
-                  
-                  <Button type="submit" className="w-full gradient-gold border-0" size="lg">
-                    Send Message
+
+                  <Button type="submit" className="w-full gradient-gold border-0" size="lg" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending..." : "Send Message"}
                     <Send className="ml-2" size={18} />
                   </Button>
                 </form>
@@ -165,7 +183,7 @@ const Contact = () => {
                         <div>
                           <h3 className="font-bold mb-1">{info.title}</h3>
                           {info.link ? (
-                            <a 
+                            <a
                               href={info.link}
                               className="text-muted-foreground hover:text-primary transition-colors"
                             >

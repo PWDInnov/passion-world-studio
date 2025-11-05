@@ -24,9 +24,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
-              <span className="text-white font-bold text-xl">PW</span>
-            </div>
+            <img 
+              src="https://www.dropbox.com/scl/fi/3gc2iw0mqsegz1recqva5/Copilot_20250813_185734-Copy-2.png?rlkey=q6bwk5vmotaa7z3fj9ueifj4s&st=bzimhneh&dl=1" 
+              alt="PassionWorld Designs"
+              className="w-12 h-12 rounded-full logo-3d-spin"
+            />
             <span className="text-xl font-bold hidden sm:block">
               PassionWorld <span className="text-primary">Designs</span>
             </span>

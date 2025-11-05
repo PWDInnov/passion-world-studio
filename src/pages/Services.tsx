@@ -1,127 +1,103 @@
-import { useState } from "react";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Lightbulb, DollarSign, Sparkles, Palette, Code, Megaphone } from "lucide-react";
+import ServiceCard from "@/components/ServiceCard"; // Import the ServiceCard component
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Services = () => {
-  const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const services = [
-    {
-      icon: Lightbulb,
-      title: "Innovation",
-      subtitle: "Cutting-edge design solutions",
-      description: "We push creative boundaries with innovative design approaches that set new industry standards. Our team stays ahead of trends to deliver forward-thinking solutions.",
-      details: "Our innovation process includes thorough market research, competitor analysis, and creative brainstorming sessions. We leverage the latest design tools and methodologies to ensure your project stands out in the digital landscape.",
-    },
-    {
-      icon: DollarSign,
-      title: "Affordability",
-      subtitle: "Premium quality, competitive pricing",
-      description: "Get exceptional design quality without breaking the bank. We believe great design should be accessible to businesses of all sizes.",
-      details: "We offer flexible pricing packages tailored to your budget and needs. Our transparent pricing model ensures no hidden costs, and we work with you to find solutions that maximize value while staying within your budget constraints.",
-    },
-    {
-      icon: Sparkles,
-      title: "Uniqueness",
-      subtitle: "One-of-a-kind creations",
-      description: "Every project is custom-crafted to reflect your brand's unique identity and vision. No templates, no cookie-cutter solutions.",
-      details: "We take time to understand your brand values, target audience, and business goals. Each design element is carefully crafted to tell your story and create a memorable experience that sets you apart from competitors.",
-    },
-    {
-      icon: Palette,
-      title: "Branding & Identity",
-      subtitle: "Build a memorable brand",
-      description: "From logo design to complete brand identity systems, we create cohesive visual identities that resonate with your audience.",
-      details: "Our branding services include logo design, color palette development, typography selection, brand guidelines, and collateral design. We ensure consistency across all touchpoints to build strong brand recognition.",
-    },
-    {
-      icon: Code,
-      title: "Web Development",
-      subtitle: "Responsive, modern websites",
-      description: "Beautiful, fast, and functional websites built with the latest technologies. Optimized for all devices and search engines.",
-      details: "We specialize in creating responsive websites using React, Next.js, and modern frameworks. Our development process includes performance optimization, SEO best practices, accessibility compliance, and thorough testing.",
-    },
-    {
-      icon: Megaphone,
-      title: "Digital Marketing",
-      subtitle: "Amplify your reach",
-      description: "Strategic digital marketing campaigns that drive results. From social media to content marketing, we help you connect with your audience.",
-      details: "Our marketing services include social media management, content strategy, email campaigns, SEO optimization, and analytics tracking. We create data-driven campaigns that increase engagement and conversions.",
-    },
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const servicesCollection = collection(db, 'services');
+        const servicesSnapshot = await getDocs(servicesCollection);
+        const servicesList = servicesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setServices(servicesList);
+      } catch (error) {
+        console.error("Error fetching services: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-muted/30">
       <Header />
-      
       <main className="flex-1">
+
         {/* Hero Section */}
-        <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up">
-              Our <span className="text-primary">Services</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in-up">
-              Comprehensive design and development solutions tailored to your needs
+        <section className="py-20 text-center bg-gradient-to-br from-background via-muted/30 to-background">
+          <div className="container mx-auto px-4">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up">Our Services</h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in-up">
+              We provide a comprehensive suite of digital services designed to elevate your brand and engage your audience.
             </p>
           </div>
         </section>
 
         {/* Services Grid */}
-        <section className="py-20 container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {services.map((service, index) => (
-              <Card 
-                key={service.title}
-                className="hover-lift cursor-pointer border-2"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => setSelectedService(service)}
-              >
-                <CardHeader>
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <service.icon className="text-primary" size={28} />
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex flex-col space-y-3">
+                    <Skeleton className="h-[225px] w-full rounded-xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-[200px]" />
+                    </div>
                   </div>
-                  <CardTitle className="text-xl">{service.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{service.subtitle}</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{service.description}</p>
-                  <button className="text-primary font-medium mt-4 hover:underline">
-                    Learn more →
-                  </button>
-                </CardContent>
-              </Card>
-            ))}
+                ))
+              ) : (
+                services.map((service) => (
+                  <ServiceCard key={service.id} service={service} />
+                ))
+              )}
+            </div>
           </div>
         </section>
-      </main>
 
-      <Footer />
-
-      {/* Service Detail Modal */}
-      <Dialog open={!!selectedService} onOpenChange={() => setSelectedService(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <div className="flex items-center gap-4 mb-2">
-              {selectedService && (
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                  <selectedService.icon className="text-primary" size={28} />
+        {/* Our Process Section */}
+        <section className="py-20 bg-background">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-10">Our Working Process</h2>
+            <div className="grid md:grid-cols-4 gap-8 text-center">
+              {[
+                { title: "Discover", description: "We start by understanding your business, goals, and audience." },
+                { title: "Design", description: "We create wireframes, mockups, and prototypes for your approval." },
+                { title: "Develop", description: "Our team brings the designs to life with clean, efficient code." },
+                { title: "Deploy", description: "We launch your project and provide support to ensure its success." },
+              ].map((step, index) => (
+                 <div key={index} className="flex flex-col items-center animate-fade-in-up" style={{ animationDelay: `${index * 0.15}s`}}>
+                  <div className="w-16 h-16 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold mb-4">{index + 1}</div>
+                  <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
                 </div>
-              )}
-              <div>
-                <DialogTitle className="text-2xl">{selectedService?.title}</DialogTitle>
-                <p className="text-muted-foreground">{selectedService?.subtitle}</p>
-              </div>
+              ))}
             </div>
-          </DialogHeader>
-          <DialogDescription className="text-base leading-relaxed">
-            {selectedService?.details}
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 bg-gradient-gold">
+            <div className="container mx-auto px-4 text-center">
+                <h2 className="text-3xl font-bold text-white mb-4">Ready to start a project?</h2>
+                <p className="text-white/80 max-w-2xl mx-auto mb-8">Let's collaborate to create something amazing. We're here to help you achieve your digital goals.</p>
+                <Link to="/contact"><Button variant="secondary" size="lg">Get in Touch</Button></Link>
+            </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };

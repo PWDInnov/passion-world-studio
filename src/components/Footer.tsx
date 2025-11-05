@@ -1,21 +1,45 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [footerData, setFooterData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchFooterData = async () => {
+      const docRef = doc(db, 'siteContent', 'footer');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setFooterData(docSnap.data());
+      } else {
+        // Fallback to default data if nothing is in the database
+        setFooterData({
+          email: "info@passionworld.com",
+          phone: "+1 (555) 123-4567",
+          address: "123 Design Street, Creative City, CC 12345",
+        });
+      }
+      setLoading(false);
+    };
+
+    fetchFooterData();
+  }, []);
+
+  const handleSubscribe = (e) => {
     e.preventDefault();
-    if (email) {
+    if (newsletterEmail) {
       toast({
         title: "Subscribed!",
         description: "Thank you for subscribing to our newsletter.",
       });
-      setEmail("");
+      setNewsletterEmail("");
     }
   };
 
@@ -35,18 +59,10 @@ const Footer = () => {
               Crafting innovative, affordable, and unique design solutions that bring your vision to life.
             </p>
             <div className="flex gap-3">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
-                <Facebook size={16} />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
-                <Twitter size={16} />
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
-                <Instagram size={16} />
-              </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors">
-                <Linkedin size={16} />
-              </a>
+              <Link to="#" className="text-muted-foreground hover:text-primary"><Facebook size={20} /></Link>
+              <Link to="#" className="text-muted-foreground hover:text-primary"><Twitter size={20} /></Link>
+              <Link to="#" className="text-muted-foreground hover:text-primary"><Instagram size={20} /></Link>
+              <Link to="#" className="text-muted-foreground hover:text-primary"><Linkedin size={20} /></Link>
             </div>
           </div>
 
@@ -54,51 +70,54 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/services" className="text-muted-foreground hover:text-primary transition-colors text-sm">Services</Link></li>
-              <li><Link to="/portfolio" className="text-muted-foreground hover:text-primary transition-colors text-sm">Portfolio</Link></li>
-              <li><Link to="/testimonials" className="text-muted-foreground hover:text-primary transition-colors text-sm">Testimonials</Link></li>
-              <li><Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Blog</Link></li>
-              <li><Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors text-sm">Contact Us</Link></li>
+              <li><Link to="/services" className="text-muted-foreground hover:text-primary text-sm">Services</Link></li>
+              <li><Link to="/portfolio" className="text-muted-foreground hover:text-primary text-sm">Portfolio</Link></li>
+              <li><Link to="/testimonials" className="text-muted-foreground hover:text-primary text-sm">Testimonials</Link></li>
+              <li><Link to="/blog" className="text-muted-foreground hover:text-primary text-sm">Blog</Link></li>
+              <li><Link to="/contact" className="text-muted-foreground hover:text-primary text-sm">Contact Us</Link></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
             <h3 className="font-bold mb-4">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Mail size={16} className="mt-0.5 flex-shrink-0" />
-                <a href="mailto:info@passionworld.com" className="hover:text-primary transition-colors">
-                  info@passionworld.com
-                </a>
-              </li>
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Phone size={16} className="mt-0.5 flex-shrink-0" />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <MapPin size={16} className="mt-0.5 flex-shrink-0" />
-                <span>123 Design Street, Creative City, CC 12345</span>
-              </li>
-            </ul>
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="animate-spin text-primary" />
+              </div>
+            ) : footerData && (
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Mail size={16} className="mt-0.5 flex-shrink-0" />
+                  <a href={`mailto:${footerData.email}`} className="hover:text-primary transition-colors">
+                    {footerData.email}
+                  </a>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Phone size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>{footerData.phone}</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <MapPin size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>{footerData.address}</span>
+                </li>
+              </ul>
+            )}
           </div>
 
           {/* Newsletter */}
           <div>
             <h3 className="font-bold mb-4">Newsletter</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Subscribe to get updates on our latest projects and design tips.
-            </p>
+            <p className="text-muted-foreground text-sm mb-4">Subscribe to get updates on our latest projects and design tips.</p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1"
-                required
+              <Input 
+                type="email" 
+                placeholder="Your email" 
+                className="flex-grow" 
+                value={newsletterEmail} 
+                onChange={(e) => setNewsletterEmail(e.target.value)} 
               />
-              <Button type="submit" size="sm">Subscribe</Button>
+              <Button type="submit">Subscribe</Button>
             </form>
           </div>
         </div>
