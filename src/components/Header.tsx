@@ -50,9 +50,6 @@ const Header = () => {
                 )}
               </Link>
             ))}
-            <Link to="/admin">
-              <Button variant="outline" size="sm">Admin</Button>
-            </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -82,9 +79,6 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full mt-2">Admin</Button>
-            </Link>
           </nav>
         )}
       </div>

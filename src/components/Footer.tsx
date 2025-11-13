@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -50,9 +51,13 @@ const Footer = () => {
           {/* About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center">
-                <span className="text-white font-bold">PW</span>
-              </div>
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                    <span className="font-bold text-lg text-primary-foreground">
+                        <span style={{ animation: 'anim_P 3s infinite', opacity: 0 }}>P</span>
+                        <span style={{ animation: 'anim_W 3s infinite', opacity: 0 }}>W</span>
+                        <span style={{ animation: 'anim_D 3s infinite', opacity: 0 }}>D</span>
+                    </span>
+                </div>
               <h3 className="text-lg font-bold">PassionWorld Designs</h3>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
