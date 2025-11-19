@@ -112,3 +112,14 @@
     83% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+@keyframes fly-out {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--r));
+    opacity: 0;
+  }
+}

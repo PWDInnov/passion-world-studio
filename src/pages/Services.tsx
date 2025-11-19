@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import useFirestore from "@/hooks/use-firestore";
+import PhotoGrid from '@/components/Photo';
 
 const Services = () => {
   const { docs: services, loading } = useFirestore('services');
@@ -16,10 +17,14 @@ const Services = () => {
       <main className="flex-1">
 
         {/* Hero Section */}
-        <section className="py-20 text-center bg-gradient-to-br from-background via-muted/30 to-background">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up">Our Services</h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto animate-fade-in-up">
+        <section className="relative py-20 text-center bg-gradient-to-br from-background via-muted/30 to-background">
+          <div className="absolute inset-0 z-0">
+            <PhotoGrid />
+            <div className="absolute inset-0 bg-black/50"></div>
+          </div>
+          <div className="container mx-auto px-4 relative z-10">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up text-white">Our Services</h1>
+            <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto animate-fade-in-up">
               We provide a comprehensive suite of digital services designed to elevate your brand and engage your audience.
             </p>
           </div>
