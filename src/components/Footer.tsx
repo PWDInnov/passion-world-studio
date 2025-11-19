@@ -15,19 +15,43 @@ const Footer = () => {
 
   useEffect(() => {
     const fetchFooterData = async () => {
-      const docRef = doc(db, 'siteContent', 'footer');
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setFooterData(docSnap.data());
-      } else {
-        // Fallback to default data if nothing is in the database
+      setLoading(true);
+      try {
+        const docRef = doc(db, 'siteContent', 'footer');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setFooterData(docSnap.data());
+        } else {
+          // Fallback to default data if nothing is in the database
+          setFooterData({
+            email: "info@passionworld.com",
+            phone: "+1 (555) 123-4567",
+            address: "123 Design Street, Creative City, CC 12345",
+            socialLinks: {
+              facebook: "#",
+              twitter: "#",
+              instagram: "#",
+              linkedin: "#",
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching footer data:", error);
+        // Set fallback data on error as well
         setFooterData({
           email: "info@passionworld.com",
           phone: "+1 (555) 123-4567",
           address: "123 Design Street, Creative City, CC 12345",
+          socialLinks: {
+            facebook: "#",
+            twitter: "#",
+            instagram: "#",
+            linkedin: "#",
+          }
         });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchFooterData();
@@ -64,10 +88,10 @@ const Footer = () => {
               Crafting innovative, affordable, and unique design solutions that bring your vision to life.
             </p>
             <div className="flex gap-3">
-              <Link to="#" className="text-muted-foreground hover:text-primary"><Facebook size={20} /></Link>
-              <Link to="#" className="text-muted-foreground hover:text-primary"><Twitter size={20} /></Link>
-              <Link to="#" className="text-muted-foreground hover:text-primary"><Instagram size={20} /></Link>
-              <Link to="#" className="text-muted-foreground hover:text-primary"><Linkedin size={20} /></Link>
+              {footerData?.socialLinks?.facebook && <a href={footerData.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Facebook size={20} /></a>}
+              {footerData?.socialLinks?.twitter && <a href={footerData.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Twitter size={20} /></a>}
+              {footerData?.socialLinks?.instagram && <a href={footerData.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Instagram size={20} /></a>}
+              {footerData?.socialLinks?.linkedin && <a href={footerData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Linkedin size={20} /></a>}
             </div>
           </div>
 

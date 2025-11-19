@@ -1,7 +1,5 @@
 
-import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebase';
+import useFirestore from "@/hooks/use-firestore";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,26 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
 
 const Portfolio = () => {
-    const [portfolioItems, setPortfolioItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchPortfolioItems = async () => {
-            setLoading(true);
-            try {
-                const portfolioCollection = collection(db, 'portfolio');
-                const portfolioSnapshot = await getDocs(portfolioCollection);
-                const portfolioList = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setPortfolioItems(portfolioList);
-            } catch (error) {
-                console.error("Error fetching portfolio items: ", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPortfolioItems();
-    }, []);
+  const { docs: portfolioItems, loading } = useFirestore('portfolio');
 
   const filterOptions = ["all", "web", "branding", "mobile"];
 

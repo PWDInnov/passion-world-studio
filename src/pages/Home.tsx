@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Services from "@/components/Services";
-import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import Services from "@/components/Services"; // Reverted back to components/Services
+import useFirestore from '@/hooks/use-firestore'; // Import the hook
 import { useInView } from 'react-intersection-observer';
 
 const AnimatedSection = ({ children, effect }) => {
@@ -28,39 +26,16 @@ const AnimatedSection = ({ children, effect }) => {
 };
 
 const Home = () => {
-  const [homePageData, setHomePageData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { docs: homePageDocs, loading } = useFirestore('siteContent');
+  const homePageData = homePageDocs.find(doc => doc.id === 'homePage');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const homePageDocRef = doc(db, 'siteContent', 'homePage');
-        const homePageDocSnap = await getDoc(homePageDocRef);
-        if (homePageDocSnap.exists()) {
-          setHomePageData(homePageDocSnap.data());
-        } else {
-          setHomePageData({
-              heroTitle: "Innovative, Affordable, Unique Design Solutions",
-              heroSubtitle: "We transform your vision into stunning reality. From web design to branding, we do it all with passion.",
-              heroCtaText: "Our Services",
-          });
-        }
+  const defaultData = {
+      heroTitle: "Innovative, Affordable, Unique Design Solutions",
+      heroSubtitle: "We transform your vision into stunning reality. From web design to branding, we do it all with passion.",
+      heroCtaText: "Our Services",
+  };
 
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-        setHomePageData({
-            heroTitle: "Innovative, Affordable, Unique Design Solutions",
-            heroSubtitle: "We transform your vision into stunning reality. From web design to branding, we do it all with passion.",
-            heroCtaText: "Our Services",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const data = homePageData || defaultData;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,7 +58,7 @@ const Home = () => {
               <div className="flex justify-center items-center h-64">
                 <Loader2 className="animate-spin text-primary" size={48} />
               </div>
-            ) : homePageData && (
+            ) : (
               <AnimatedSection effect="fade-up">
                 <div className="max-w-4xl mx-auto text-center">
                 <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary shadow-2xl mb-8">
@@ -95,17 +70,17 @@ const Home = () => {
                 </div>
                   
                   <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-white">
-                    {homePageData.heroTitle}
+                    {data.heroTitle}
                   </h1>
                   
                   <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto">
-                    {homePageData.heroSubtitle}
+                    {data.heroSubtitle}
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link to="/portfolio">
                       <Button size="lg" className="bg-primary text-primary-foreground border-0 shadow-lg hover:bg-primary/90 transition-shadow w-full sm:w-auto">
-                        {homePageData.heroCtaText}
+                        {data.heroCtaText}
                         <ArrowRight className="ml-2" size={18} />
                       </Button>
                     </Link>

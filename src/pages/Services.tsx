@@ -1,33 +1,14 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ServiceCard from "@/components/ServiceCard"; // Import the ServiceCard component
+import ServiceCard from "@/components/ServiceCard";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
+import useFirestore from "@/hooks/use-firestore";
 
 const Services = () => {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const servicesCollection = collection(db, 'services');
-        const servicesSnapshot = await getDocs(servicesCollection);
-        const servicesList = servicesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setServices(servicesList);
-      } catch (error) {
-        console.error("Error fetching services: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServices();
-  }, []);
+  const { docs: services, loading } = useFirestore('services');
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">

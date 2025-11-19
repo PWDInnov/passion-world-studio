@@ -5,31 +5,10 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Loader2 } from "lucide-react";
-import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import useFirestore from "@/hooks/use-firestore";
 
 const Blog = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      try {
-        const postsCollection = collection(db, 'blog');
-        const postsSnapshot = await getDocs(postsCollection);
-        const postsList = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setPosts(postsList);
-      } catch (error) {
-        console.error("Error fetching blog posts: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+  const { docs: posts, loading } = useFirestore('blog');
 
   return (
     <div className="min-h-screen flex flex-col">
