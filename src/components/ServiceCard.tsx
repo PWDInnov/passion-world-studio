@@ -1,9 +1,10 @@
 import { Card, CardContent, CardTitle } from './ui/card';
 import { cn } from '@/lib/utils';
-import * as Icons from 'lucide-react';
+import { icons } from 'lucide-react';
+import { Service } from '../types';
 
-const ServiceCard = ({ service, className }) => {
-  const Icon = service.icon ? Icons[service.icon] : null;
+const ServiceCard = ({ service, className }: { service: Service; className?: string }) => {
+  const Icon = service.icon ? icons[service.icon as keyof typeof icons] : null;
 
   return (
     <Card className={cn("hover-lift text-center", className)}>
