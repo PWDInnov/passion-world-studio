@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { Button } from "./ui/button";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,21 +20,30 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center gap-2 group">
+              <img 
+                src="https://www.dropbox.com/scl/fi/0ikoxuxqxfhvpnacpyu81/ChatGPT-Image-Feb-7-2026-12_50_59-PM.png?rlkey=vmtfbe4fxhmytiog9tkrwmvve&st=720jh2f9&dl=1" 
+                alt="PassionWorld Designs"
+                className="w-36 h-36 logo-3d-spin"
+              />
+            </Link>
             <img 
-              src="https://www.dropbox.com/scl/fi/3gc2iw0mqsegz1recqva5/Copilot_20250813_185734-Copy-2.png?rlkey=q6bwk5vmotaa7z3fj9ueifj4s&st=bzimhneh&dl=1" 
-              alt="PassionWorld Designs"
-              className="w-12 h-12 rounded-full logo-3d-spin"
+              src="https://www.dropbox.com/scl/fi/0mbfgf0ys4y2ptd4mtzcc/Copilot_20260204_172642-removebg-preview.png?rlkey=u031udnxp41g5re4dsyiu1cyd&st=ky1ger2s&raw=1"
+              alt="Copilot Logo"
+              className="w-16 h-16 ml-20"
             />
-            <span className="text-xl font-bold hidden sm:block">
-              PassionWorld <span className="text-primary">Designs</span>
-            </span>
-          </Link>
+            <img 
+              src="https://www.dropbox.com/scl/fi/lyzm23qnyjklnqmnpni6s/Creative_Suite_3D_Product_Box-removebg-preview.png?rlkey=u329kwycs3snyr7ken6f56rac&st=n7zdgwic&raw=1"
+              alt="Creative Suite Logo"
+              className="w-16 h-16 ml-8"
+            />
+          </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
