@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,19 +64,28 @@ const Contact = () => {
     setFormData(prevState => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage('');
 
-    // Here you would typically handle form submission, e.g., send an email or save to a database
-    console.log('Form submitted:', formData);
+    try {
+      // Save form data to Firestore
+      await addDoc(collection(db, 'messages'), {
+        ...formData,
+        timestamp: serverTimestamp()
+      });
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+      // TODO: Implement email sending functionality here
+
       setSubmitMessage('Your message has been sent successfully!');
       setFormData({ name: '', email: '', message: '' });
-    }, 2000);
+    } catch (error) {
+      console.error('Error submitting form: ', error);
+      setSubmitMessage('There was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
