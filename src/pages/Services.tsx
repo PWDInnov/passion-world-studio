@@ -77,9 +77,9 @@ const Services = () => {
         {/* CTA Section */}
         <section className="py-24 bg-gradient-gold">
             <div className="container mx-auto px-4 text-center">
-                <h2 className="text-3xl font-bold text-white mb-4">Ready to start a project?</h2>
-                <p className="text-white/80 max-w-2xl mx-auto mb-8">Let's collaborate to create something amazing. We're here to help you achieve your digital goals.</p>
-                <Link to="/contact"><Button variant="secondary" size="lg">Get in Touch</Button></Link>
+                <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-md">Ready to start a project?</h2>
+                <p className="text-white max-w-2xl mx-auto mb-8 font-medium drop-shadow-sm">Let&apos;s collaborate to create something amazing. We&apos;re here to help you achieve your digital goals.</p>
+                <Link to="/contact"><Button variant="secondary" size="lg" className="shadow-lg">Get in Touch</Button></Link>
             </div>
         </section>
       </main>
