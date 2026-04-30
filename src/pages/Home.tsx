@@ -79,13 +79,13 @@ const Home = () => {
                   
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Link to="/portfolio">
-                      <Button size="lg" className="bg-primary text-primary-foreground border-0 shadow-lg hover:bg-primary/90 transition-shadow w-full sm:w-auto">
+                      <Button size="lg" className="border-0 shadow-lg transition-shadow w-full sm:w-auto btn-gold-shine">
                         {data.heroCtaText}
                         <ArrowRight className="ml-2" size={18} />
                       </Button>
                     </Link>
                     <Link to="/contact">
-                      <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent text-white border-white hover:bg-white hover:text-black">
+                      <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/10 text-white border-white hover:bg-white hover:text-primary backdrop-blur-sm">
                         Get in Touch
                       </Button>
                     </Link>
@@ -110,7 +110,7 @@ const Home = () => {
                 Let's collaborate and create something extraordinary together.
               </p>
               <Link to="/contact">
-                <Button size="lg" className="bg-primary text-primary-foreground border-0 shadow-lg hover:bg-primary/90">
+                <Button size="lg" className="border-0 shadow-lg btn-gold-shine">
                   Start Your Project
                   <ArrowRight className="ml-2" size={18} />
                 </Button>

@@ -53,7 +53,7 @@ const Services = () => {
             services.map((service) => (
               <Card 
                 key={service.id} 
-                className="bg-card/50 backdrop-blur-sm border-primary/20 hover:border-primary/60 transition-colors duration-300 hover-lift shadow-lg"
+                className="bg-card backdrop-blur-sm border-primary/20 hover:border-primary/60 transition-colors duration-300 hover-lift shadow-lg gold-border-glow"
               >
                 <CardHeader className="items-center">
                   <CardTitle className="text-2xl font-semibold">{service.title}</CardTitle>
