@@ -3,11 +3,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Public can read any data
-    // Only authenticated users can write (add, update, delete)
+    // Allow public read access to all collections
     match /{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+    }
+
+    // Allow public write access to the 'messages' collection
+    match /messages/{messageId} {
+      allow write: if true;
+    }
+
+    // Restrict write access to all other collections to authenticated users
+    match /{path=**}/ {document=*} {
+      allow write: if request.auth != null && path != "messages";
     }
     
   }
