@@ -2,6 +2,7 @@
 import useFirestore from "@/hooks/use-firestore";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BeforeAfter from "@/components/BeforeAfter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +76,8 @@ const Portfolio = () => {
             )}
           </Tabs>
         </section>
+
+        <BeforeAfter />
       </main>
       <Footer />
     </div>

@@ -15,6 +15,8 @@ import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import LoadingScreen from "@/components/LoadingScreen";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import DesignAssistant from "@/components/DesignAssistant";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,8 @@ const App = () => {
               <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <WhatsAppButton />
+            <DesignAssistant />
           </BrowserRouter>
         )}
       </TooltipProvider>

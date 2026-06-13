@@ -95,6 +95,66 @@
   to { opacity: 1; }
 }
 
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out both;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Bold hero motion */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(2deg); }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes gold-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 160, 64, 0.5); }
+  50% { box-shadow: 0 0 0 18px rgba(201, 160, 64, 0); }
+}
+
+.animate-gold-pulse {
+  animation: gold-pulse 2.8s ease-out infinite;
+}
+
+@keyframes shimmer-text {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-heading {
+  background: linear-gradient(90deg, #ffffff 0%, hsl(43, 90%, 70%) 25%, #ffffff 50%, hsl(43, 90%, 70%) 75%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 5s linear infinite;
+}
+
+/* Reveal on scroll variants */
+.reveal-zoom-initial { transform: scale(0.92); }
+.reveal-left-initial { transform: translateX(-48px); }
+.reveal-right-initial { transform: translateX(48px); }
+.scroll-animate-reveal {
+  opacity: 1;
+  transform: translate(0) scale(1);
+}
+
 @keyframes anim_P {
     0% { opacity: 0; }
     17% { opacity: 1; }

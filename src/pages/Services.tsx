@@ -2,6 +2,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ServiceCatalog from "@/components/ServiceCatalog";
+import PackageBuilder from "@/components/PackageBuilder";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PhotoGrid from '@/components/Photo';
@@ -28,6 +29,9 @@ const Services = () => {
 
         {/* Full Service Catalog */}
         <ServiceCatalog />
+
+        {/* Build Your Package Configurator */}
+        <PackageBuilder />
 
         {/* Our Process Section */}
         <section className="py-20 bg-background">
