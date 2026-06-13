@@ -1,16 +1,12 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ServiceCard from "@/components/ServiceCard";
+import ServiceCatalog from "@/components/ServiceCatalog";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import useFirestore from "@/hooks/use-firestore";
 import PhotoGrid from '@/components/Photo';
 
 const Services = () => {
-  const { docs: services, loading } = useFirestore('services');
-
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <Header />
@@ -30,28 +26,8 @@ const Services = () => {
           </div>
         </section>
 
-        {/* Services Grid */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {loading ? (
-                Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[225px] w-full rounded-xl" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-[200px]" />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                services.map((service) => (
-                  <ServiceCard key={service.id} service={service} />
-                ))
-              )}
-            </div>
-          </div>
-        </section>
+        {/* Full Service Catalog */}
+        <ServiceCatalog />
 
         {/* Our Process Section */}
         <section className="py-20 bg-background">
