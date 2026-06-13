@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, X } from "lucide-react";
 
-const PHONE = "264813102 04".replace(/\s/g, ""); // +264 81 310 204
+const PHONE = "+264858037211".replace(/\s/g, ""); // +264 85 8037 211
 const DEFAULT_MSG = "Hi PassionWorld Designs! I'd like to discuss a project.";
 
 const WhatsAppButton = () => {
