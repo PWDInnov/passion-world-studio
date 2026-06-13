@@ -5,6 +5,8 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Services from "@/components/Services"; // Reverted back to components/Services
+import StatsCounter from "@/components/StatsCounter";
+import Marquee from "@/components/Marquee";
 import useFirestore from '@/hooks/use-firestore'; // Import the hook
 import { useInView } from 'react-intersection-observer';
 
@@ -17,9 +19,22 @@ const AnimatedSection = ({ children, effect }) => {
   let initialClass = 'scroll-animate';
   if (effect === 'fade-up') initialClass += ' fade-up-initial';
   if (effect === 'fade-down') initialClass += ' fade-down-initial';
+  if (effect === 'zoom') initialClass += ' reveal-zoom-initial';
+  if (effect === 'left') initialClass += ' reveal-left-initial';
+  if (effect === 'right') initialClass += ' reveal-right-initial';
+
+  const visibleClass = inView
+    ? effect === 'fade-up'
+      ? 'scroll-animate-fade-up'
+      : effect === 'fade-down'
+      ? 'scroll-animate-fade-down'
+      : effect === 'zoom' || effect === 'left' || effect === 'right'
+      ? 'scroll-animate-reveal'
+      : 'scroll-animate-fade-in'
+    : '';
 
   return (
-    <div ref={ref} className={`${initialClass} ${inView ? (effect === 'fade-up' ? 'scroll-animate-fade-up' : effect === 'fade-down' ? 'scroll-animate-fade-down' : 'scroll-animate-fade-in') : ''}`}>
+    <div ref={ref} className={`${initialClass} ${visibleClass}`}>
       {children}
     </div>
   );
@@ -61,19 +76,19 @@ const Home = () => {
             ) : (
               <AnimatedSection effect="fade-up">
                 <div className="max-w-4xl mx-auto text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary shadow-2xl mb-8">
-                    <span className="font-bold text-3xl text-primary-foreground">
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary shadow-2xl mb-8 animate-float-slow animate-gold-pulse">
+                    <span className="font-bold text-4xl text-primary-foreground">
                         <span style={{ animation: 'anim_P 3s infinite', opacity: 0 }}>P</span>
                         <span style={{ animation: 'anim_W 3s infinite', opacity: 0 }}>W</span>
                         <span style={{ animation: 'anim_D 3s infinite', opacity: 0 }}>D</span>
                     </span>
                 </div>
                   
-                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-white">
+                  <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 shimmer-heading text-balance">
                     {data.heroTitle}
                   </h1>
                   
-                  <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto">
+                  <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto text-pretty">
                     {data.heroSubtitle}
                   </p>
                   
@@ -96,8 +111,14 @@ const Home = () => {
           </div>
         </section>
 
+        <Marquee />
+
         <AnimatedSection effect="fade-in">
           <Services />
+        </AnimatedSection>
+
+        <AnimatedSection effect="zoom">
+          <StatsCounter />
         </AnimatedSection>
 
         <AnimatedSection effect="fade-down">
