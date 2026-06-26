@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bot, X, MessageCircle } from "lucide-react";
 
-const PHONE = "26481310204";
+const PHONE = "+264858037211";
 
 interface Option {
   label: string;

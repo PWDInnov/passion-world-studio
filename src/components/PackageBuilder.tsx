@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, MessageCircle, Sparkles } from "lucide-react";
 
-const PHONE = "26481310204"; // +264 81 310 204
+const PHONE = "264858037211"; // 264858037211
 
 interface PackageOption {
   id: string;
