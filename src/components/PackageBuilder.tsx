@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Check, MessageCircle, Sparkles } from "lucide-react";
 
 const PHONE = "26481310204"; // +264 81 310 204
@@ -72,18 +71,33 @@ const PackageBuilder = () => {
             {options.map((o) => {
               const active = selected.includes(o.id);
               return (
-                <button
+                <div
                   key={o.id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => toggle(o.id)}
-                  className={`text-left rounded-xl border p-4 transition-all duration-300 ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggle(o.id);
+                    }
+                  }}
+                  className={`text-left cursor-pointer rounded-xl border p-4 transition-all duration-300 ${
                     active
                       ? "border-primary bg-primary/5 gold-border-glow shadow-md"
                       : "border-border bg-card hover:border-primary/50"
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <Checkbox checked={active} className="mt-1 pointer-events-none" />
+                    <span
+                      className={`mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border transition-colors ${
+                        active
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-muted-foreground/40 bg-transparent"
+                      }`}
+                    >
+                      {active && <Check size={14} />}
+                    </span>
                     <div className="flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold">{o.label}</span>
@@ -94,7 +108,7 @@ const PackageBuilder = () => {
                       </p>
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
