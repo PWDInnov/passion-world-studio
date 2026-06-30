@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Services from "@/components/Services"; // Reverted back to components/Services
+import Services from "@/components/Services";
 import StatsCounter from "@/components/StatsCounter";
 import Marquee from "@/components/Marquee";
-import useFirestore from '@/hooks/use-firestore'; // Import the hook
+import useFirestore from '@/hooks/use-firestore';
 import { useInView } from 'react-intersection-observer';
+import { useState } from "react";
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -43,14 +44,17 @@ const AnimatedSection = ({ children, effect }) => {
 const Home = () => {
   const { docs: homePageDocs, loading } = useFirestore('siteContent');
   const homePageData = homePageDocs.find(doc => doc.id === 'homePage');
+  const [videoError, setVideoError] = useState(false);
 
   const defaultData = {
       heroTitle: "Innovative, Affordable, Unique Design Solutions",
       heroSubtitle: "We transform your vision into stunning reality. From web design to branding, we do it all with passion.",
       heroCtaText: "Our Services",
+      heroVideoUrl: "/hero-video.mp4",
   };
 
   const data = homePageData || defaultData;
+  const heroVideoUrl = videoError ? defaultData.heroVideoUrl : data.heroVideoUrl || defaultData.heroVideoUrl;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -64,8 +68,10 @@ const Home = () => {
             muted
             playsInline
             className="absolute top-0 left-0 w-full h-full object-cover z-0"
+            key={heroVideoUrl}
+            onError={() => setVideoError(true)}
           >
-            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src={heroVideoUrl} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/50 z-10"></div>
           <div className="container mx-auto px-4 relative z-20">
