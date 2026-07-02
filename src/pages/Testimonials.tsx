@@ -1,9 +1,11 @@
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Loader2 } from "lucide-react";
 import useFirestore from "@/hooks/use-firestore";
+import './Testimonials.css'; // Import the new CSS file
 
 const Testimonials = () => {
   const { docs: testimonials, loading } = useFirestore('testimonials');
@@ -30,12 +32,11 @@ const Testimonials = () => {
           {loading ? (
             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" size={36} /></div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {testimonials.map((testimonial, index) => (
+            <div className="testimonials-grid"> {/* Apply the grid class */}
+              {testimonials.map((testimonial) => (
                 <Card 
                   key={testimonial.id}
-                  className="hover-lift animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="hover-lift"
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
