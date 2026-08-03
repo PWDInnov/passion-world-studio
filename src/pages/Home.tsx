@@ -10,6 +10,7 @@ import Marquee from "@/components/Marquee";
 import useFirestore from '@/hooks/use-firestore';
 import { useInView } from 'react-intersection-observer';
 import { useState } from "react";
+import NewsSection from "@/components/NewsSection"; // Import the new component
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -128,22 +129,7 @@ const Home = () => {
         </AnimatedSection>
 
         <AnimatedSection effect="fade-down">
-          <section className="py-20 bg-muted/50">
-            <div className="container mx-auto px-4 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Ready to Bring Your Vision to Life?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Let's collaborate and create something extraordinary together.
-              </p>
-              <Link to="/contact">
-                <Button size="lg" className="border-0 shadow-lg btn-gold-shine">
-                  Start Your Project
-                  <ArrowRight className="ml-2" size={18} />
-                </Button>
-              </Link>
-            </div>
-          </section>
+          <NewsSection />
         </AnimatedSection>
       </main>
 

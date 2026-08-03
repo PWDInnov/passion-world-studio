@@ -44,15 +44,15 @@ const Counter = ({ value, suffix }: { value: number; suffix: string }) => {
 
 const StatsCounter = () => {
   return (
-    <section className="py-20 bg-gradient-gold">
+    <section className="py-20">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat) => (
-            <div key={stat.label} className="text-center text-white">
+            <div key={stat.label} className="text-center">
               <div className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 drop-shadow-md">
                 <Counter value={stat.value} suffix={stat.suffix} />
               </div>
-              <p className="text-sm md:text-base text-white/90 font-medium">{stat.label}</p>
+              <p className="text-sm md:text-base font-medium">{stat.label}</p>
             </div>
           ))}
         </div>

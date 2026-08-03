@@ -69,11 +69,15 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-muted/50 border-t border-border mt-20">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* About */}
-          <div>
+    <footer 
+        className="border-t border-border mt-20 bg-cover bg-center text-white relative"
+        style={{ backgroundImage: "url(/footer-bg.jpg)" }}
+    >
+        <div className="absolute inset-0 bg-black/70"></div>
+        <div className="container mx-auto px-4 py-12 relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+              {/* About */}
+              <div>
             <div className="flex items-center gap-2 mb-4">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                     <span className="font-bold text-lg text-primary-foreground">
@@ -84,14 +88,14 @@ const Footer = () => {
                 </div>
               <h3 className="text-lg font-bold">PassionWorld Designs</h3>
             </div>
-            <p className="text-muted-foreground text-sm mb-4">
+            <p className="text-gray-300 text-sm mb-4">
               Crafting innovative, affordable, and unique design solutions that bring your vision to life.
             </p>
             <div className="flex gap-3">
-              {footerData?.socialLinks?.facebook && <a href={footerData.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Facebook size={20} /></a>}
-              {footerData?.socialLinks?.twitter && <a href={footerData.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Twitter size={20} /></a>}
-              {footerData?.socialLinks?.instagram && <a href={footerData.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Instagram size={20} /></a>}
-              {footerData?.socialLinks?.linkedin && <a href={footerData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary"><Linkedin size={20} /></a>}
+              {footerData?.socialLinks?.facebook && <a href={footerData.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary"><Facebook size={20} /></a>}
+              {footerData?.socialLinks?.twitter && <a href={footerData.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary"><Twitter size={20} /></a>}
+              {footerData?.socialLinks?.instagram && <a href={footerData.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary"><Instagram size={20} /></a>}
+              {footerData?.socialLinks?.linkedin && <a href={footerData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-primary"><Linkedin size={20} /></a>}
             </div>
           </div>
 
@@ -99,11 +103,11 @@ const Footer = () => {
           <div>
             <h3 className="font-bold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link to="/services" className="text-muted-foreground hover:text-primary text-sm">Services</Link></li>
-              <li><Link to="/portfolio" className="text-muted-foreground hover:text-primary text-sm">Portfolio</Link></li>
-              <li><Link to="/testimonials" className="text-muted-foreground hover:text-primary text-sm">Testimonials</Link></li>
-              <li><Link to="/blog" className="text-muted-foreground hover:text-primary text-sm">Blog</Link></li>
-              <li><Link to="/contact" className="text-muted-foreground hover:text-primary text-sm">Contact Us</Link></li>
+              <li><Link to="/services" className="text-gray-300 hover:text-primary text-sm">Services</Link></li>
+              <li><Link to="/portfolio" className="text-gray-300 hover:text-primary text-sm">Portfolio</Link></li>
+              <li><Link to="/testimonials" className="text-gray-300 hover:text-primary text-sm">Testimonials</Link></li>
+              <li><Link to="/blog" className="text-gray-300 hover:text-primary text-sm">Blog</Link></li>
+              <li><Link to="/contact" className="text-gray-300 hover:text-primary text-sm">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -116,17 +120,17 @@ const Footer = () => {
               </div>
             ) : footerData && (
               <ul className="space-y-3">
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2 text-sm text-gray-300">
                   <Mail size={16} className="mt-0.5 flex-shrink-0" />
                   <a href={`mailto:${footerData.email}`} className="hover:text-primary transition-colors">
                     {footerData.email}
                   </a>
                 </li>
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2 text-sm text-gray-300">
                   <Phone size={16} className="mt-0.5 flex-shrink-0" />
                   <span>{footerData.phone}</span>
                 </li>
-                <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2 text-sm text-gray-300">
                   <MapPin size={16} className="mt-0.5 flex-shrink-0" />
                   <span>{footerData.address}</span>
                 </li>
@@ -137,21 +141,21 @@ const Footer = () => {
           {/* Newsletter */}
           <div>
             <h3 className="font-bold mb-4">Newsletter</h3>
-            <p className="text-muted-foreground text-sm mb-4">Subscribe to get updates on our latest projects and design tips.</p>
+            <p className="text-gray-300 text-sm mb-4">Subscribe to get updates on our latest projects and design tips.</p>
             <form onSubmit={handleSubscribe} className="flex gap-2">
               <Input 
                 type="email" 
                 placeholder="Your email" 
-                className="flex-grow" 
+                className="flex-grow bg-white/20 border-white/30 placeholder:text-gray-400 focus:ring-primary"
                 value={newsletterEmail} 
                 onChange={(e) => setNewsletterEmail(e.target.value)} 
               />
-              <Button type="submit">Subscribe</Button>
+              <Button type="submit" variant="secondary">Subscribe</Button>
             </form>
           </div>
         </div>
 
-        <div className="border-t border-border pt-6 text-center text-sm text-muted-foreground">
+        <div className="border-t border-white/20 pt-6 text-center text-sm text-gray-300">
           <p>&copy; {new Date().getFullYear()} PassionWorld Designs. All rights reserved.</p>
         </div>
       </div>

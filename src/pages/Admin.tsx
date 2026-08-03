@@ -16,7 +16,8 @@ import {
   PlusCircle,
   Trash, 
   Pencil,
-  Mail
+  Mail,
+  Newspaper // Added Newspaper icon
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
@@ -30,6 +31,7 @@ import HomePageForm from "../components/HomePageForm";
 import ServiceForm from "../components/ServiceForm";
 import BlogManagement from "../components/BlogManagement";
 import TestimonialForm from "../components/TestimonialForm";
+import NewsManagement from "../components/NewsManagement"; // Import NewsManagement
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 
 const Admin = () => {
@@ -39,6 +41,7 @@ const Admin = () => {
   const { docs: portfolioItems, setDocs: setPortfolioItems } = useFirestore('portfolio');
   const { docs: testimonials, setDocs: setTestimonials } = useFirestore('testimonials');
   const { docs: services, setDocs: setServices } = useFirestore('services');
+  const { docs: newsItems } = useFirestore('news'); // Fetch news items
 
   const [isPortfolioFormOpen, setIsPortfolioFormOpen] = useState(false);
   const [isFooterFormOpen, setIsFooterFormOpen] = useState(false);
@@ -67,13 +70,6 @@ const Admin = () => {
                 imageUrl: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop",
                 category: "branding",
                 tags: ["Logo Design", "Brand Identity", "Marketing"],
-            },
-            {
-                title: "E-commerce Platform UX",
-                description: "A complete redesign of a major e-commerce website, focusing on user experience and conversion rate optimization.",
-                imageUrl: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&h=600&fit=crop",
-                category: "web",
-                tags: ["UX/UI", "E-commerce", "Web Design"],
             },
         ];
         for (const item of dummyPortfolio) { await addDoc(portfolioCollection, item); }
@@ -107,14 +103,6 @@ const Admin = () => {
             {
                 title: "Brand Identity",
                 description: "Crafting memorable brand identities that resonate with your audience and stand the test of time.",
-            },
-            {
-                title: "Web Development",
-                description: "Beautiful, fast, and functional websites built with the latest technologies, optimized for all devices.",
-            },
-            {
-                title: "Digital Marketing",
-                description: "Strategic digital marketing campaigns that drive results, from social media to content marketing.",
             },
         ];
         for (const item of dummyServices) { await addDoc(servicesCollection, item); }
@@ -223,6 +211,7 @@ const Admin = () => {
     { label: "Total Messages", value: messages.length, icon: MessageSquare },
     { label: "Blog Posts", value: blogPosts.length, icon: FileText },
     { label: "Portfolio Items", value: portfolioItems.length, icon: Image },
+    { label: "News Items", value: newsItems.length, icon: Newspaper }, // Added News stat
     { label: "Testimonials", value: testimonials.length, icon: Star },
   ];
 
@@ -235,7 +224,7 @@ const Admin = () => {
         </div>
       </header>
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"> 
           {stats.map((stat, index) => (
             <Card key={stat.label} className="hover-lift" style={{ animationDelay: `${index * 0.1}s` }}><CardContent className="p-6"><div className="flex items-center justify-between mb-2"><stat.icon className="text-primary" size={24} /><span className="text-3xl font-bold">{stat.value}</span></div><p className="text-sm text-muted-foreground">{stat.label}</p></CardContent></Card>
           ))}
@@ -244,7 +233,7 @@ const Admin = () => {
           <CardHeader><CardTitle className="flex items-center gap-2"><LayoutDashboard size={24} /> Content Management</CardTitle></CardHeader>
           <CardContent>
             <Tabs defaultValue="messages" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger></TabsList>
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-7"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger></TabsList>
 
               <TabsContent value="pages" className="space-y-4">
                 {isHomePageFormOpen ? <HomePageForm onSave={closePageForms} onCancel={closePageForms} />
@@ -277,6 +266,8 @@ const Admin = () => {
               </TabsContent>
 
               <TabsContent value="blog"><BlogManagement /></TabsContent>
+
+              <TabsContent value="news"><NewsManagement /></TabsContent> 
               
               <TabsContent value="testimonials" className="space-y-4">
                 {isTestimonialFormOpen ? <TestimonialForm item={selectedTestimonialItem} onSave={handleSaveTestimonialItem} onCancel={() => { setIsTestimonialFormOpen(false); setSelectedTestimonialItem(null);}}/>
