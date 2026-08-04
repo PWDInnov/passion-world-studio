@@ -1,3 +1,4 @@
+
 import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -15,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import LoadingScreen from "@/components/LoadingScreen";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import DesignAssistant from "@/components/DesignAssistant";
+import ProjectPlannerPage from "./pages/tools/ProjectPlannerPage";
+import NewsPage from "./pages/News";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +49,8 @@ const App = () => {
               <Route path="/blog/:id" element={<BlogPost />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/tools/project-planner" element={<ProjectPlannerPage />} />
+              <Route path="/news" element={<NewsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <WhatsAppButton />

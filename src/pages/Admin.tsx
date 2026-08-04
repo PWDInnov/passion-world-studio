@@ -17,7 +17,8 @@ import {
   Trash, 
   Pencil,
   Mail,
-  Newspaper // Added Newspaper icon
+  Newspaper,
+  SlidersHorizontal
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
@@ -31,7 +32,8 @@ import HomePageForm from "../components/HomePageForm";
 import ServiceForm from "../components/ServiceForm";
 import BlogManagement from "../components/BlogManagement";
 import TestimonialForm from "../components/TestimonialForm";
-import NewsManagement from "../components/NewsManagement"; // Import NewsManagement
+import NewsManagement from "../components/NewsManagement";
+import PlannerManager from "../components/PlannerManager";
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 
 const Admin = () => {
@@ -41,7 +43,7 @@ const Admin = () => {
   const { docs: portfolioItems, setDocs: setPortfolioItems } = useFirestore('portfolio');
   const { docs: testimonials, setDocs: setTestimonials } = useFirestore('testimonials');
   const { docs: services, setDocs: setServices } = useFirestore('services');
-  const { docs: newsItems } = useFirestore('news'); // Fetch news items
+  const { docs: newsItems } = useFirestore('news');
 
   const [isPortfolioFormOpen, setIsPortfolioFormOpen] = useState(false);
   const [isFooterFormOpen, setIsFooterFormOpen] = useState(false);
@@ -211,7 +213,7 @@ const Admin = () => {
     { label: "Total Messages", value: messages.length, icon: MessageSquare },
     { label: "Blog Posts", value: blogPosts.length, icon: FileText },
     { label: "Portfolio Items", value: portfolioItems.length, icon: Image },
-    { label: "News Items", value: newsItems.length, icon: Newspaper }, // Added News stat
+    { label: "News Items", value: newsItems.length, icon: Newspaper },
     { label: "Testimonials", value: testimonials.length, icon: Star },
   ];
 
@@ -233,7 +235,7 @@ const Admin = () => {
           <CardHeader><CardTitle className="flex items-center gap-2"><LayoutDashboard size={24} /> Content Management</CardTitle></CardHeader>
           <CardContent>
             <Tabs defaultValue="messages" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-7"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger></TabsList>
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-8"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger><TabsTrigger value="planner">Planner</TabsTrigger></TabsList>
 
               <TabsContent value="pages" className="space-y-4">
                 {isHomePageFormOpen ? <HomePageForm onSave={closePageForms} onCancel={closePageForms} />
@@ -285,6 +287,11 @@ const Admin = () => {
                 <div className="md:col-span-1"><Card><CardHeader><CardTitle>Inbox</CardTitle></CardHeader><CardContent className="p-2"><div className="space-y-2">{messages.length > 0 ? messages.map(msg => (<div key={msg.id} className={`p-3 rounded-lg cursor-pointer ${selectedMessage?.id === msg.id ? 'bg-primary/10' : 'hover:bg-muted/50'} ${!msg.read ? 'font-bold' : ''}`} onClick={() => { setSelectedMessage(msg); if (!msg.read) handleMarkAsRead(msg.id); }}><h4>{msg.name}</h4><p className="text-sm text-muted-foreground truncate">{msg.subject}</p></div>)) : <p className="text-sm text-muted-foreground text-center p-4">No messages yet.</p>}</div></CardContent></Card></div>
                 <div className="md:col-span-2"><Card className="h-full"><CardHeader><CardTitle>Message Details</CardTitle></CardHeader><CardContent>{selectedMessage ? (<div className="space-y-4"><div className="flex justify-between items-start"><div><h3 className="font-bold text-lg">{selectedMessage.name}</h3><a href={`mailto:${selectedMessage.email}`} className="text-sm text-muted-foreground hover:underline">{selectedMessage.email}</a></div><Button variant="destructive" size="sm" onClick={() => handleDeleteMessage(selectedMessage.id)}><Trash className="mr-2" size={14} /> Delete</Button></div><p className="font-semibold">Subject: {selectedMessage.subject}</p><div className="p-4 bg-muted/50 rounded-lg whitespace-pre-wrap">{selectedMessage.message}</div><p className="text-xs text-muted-foreground pt-4 border-t">{new Date(selectedMessage.timestamp?.seconds * 1000).toLocaleString()}</p></div>) : (<div className="flex flex-col items-center justify-center h-full text-center py-12"><Mail size={48} className="text-muted-foreground mb-4"/><p className="text-muted-foreground">Select a message to view its details</p></div>)}</CardContent></Card></div>
               </TabsContent>
+                
+              <TabsContent value="planner">
+                <PlannerManager />
+              </TabsContent>
+
             </Tabs>
           </CardContent>
         </Card>
