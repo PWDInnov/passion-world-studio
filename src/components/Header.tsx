@@ -25,14 +25,14 @@ const Header = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2 group">
               <img 
-                src="https://www.dropbox.com/scl/fi/0ikoxuxqxfhvpnacpyu81/ChatGPT-Image-Feb-7-2026-12_50_59-PM.png?rlkey=vmtfbe4fxhmytiog9tkrwmvve&st=720jh2f9&dl=1" 
+                src="https://www.dropbox.com/scl/fi/qm9h1nfzpni5qzs2wydqu/ChatGPT_Image_May_21__2026__10_08_26_AM-removebg-preview.png?rlkey=k9e8ak4q6xwbrltxi3dr0x5l5&st=pbitobzy&raw=1" 
                 alt="PassionWorld Designs"
-                className="w-36 h-36 logo-3d-spin"
+                className="w-20 h-20 logo-3d-spin"
               />
             </Link>
             <img 
               src="https://www.dropbox.com/scl/fi/0mbfgf0ys4y2ptd4mtzcc/Copilot_20260204_172642-removebg-preview.png?rlkey=u031udnxp41g5re4dsyiu1cyd&st=ky1ger2s&raw=1"
-              alt="Copilot Logo"
+              alt="360 Designs"
               className="w-16 h-16 ml-20"
             />
             <img 
