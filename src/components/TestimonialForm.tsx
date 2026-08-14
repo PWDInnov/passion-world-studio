@@ -76,7 +76,7 @@ const TestimonialForm = ({ item, onSave, onCancel }) => {
         {imageUrl && (
           <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={imageUrl} alt="Profile preview" className="object-cover" />
+              <AvatarImage src={imageUrl} alt="Profile preview" className="bg-white object-contain" />
               <AvatarFallback className="bg-gradient-gold text-white">
                 {name ? name.split(' ').map((namePart) => namePart[0]).join('') : '?'}
               </AvatarFallback>

@@ -38,7 +38,7 @@ const Testimonials = () => {
                     <div className="testimonial-card__glow" aria-hidden="true" />
                     <div className="relative flex items-start justify-between gap-4">
                       <Avatar className="h-16 w-16 border-4 border-background shadow-lg ring-2 ring-primary/30 transition-transform duration-300 group-hover:scale-105">
-                        <AvatarImage src={testimonial.imageUrl} alt={`${testimonial.name} profile`} className="object-cover" />
+                        <AvatarImage src={testimonial.imageUrl} alt={`${testimonial.name} profile`} className="bg-white object-contain" />
                         <AvatarFallback className="bg-gradient-gold font-semibold text-white">
                           {testimonial.name.split(' ').map((namePart) => namePart[0]).join('')}
                         </AvatarFallback>
