@@ -1,9 +1,8 @@
-
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, Loader2 } from "lucide-react";
+import { Quote, Star, Loader2 } from "lucide-react";
 import useFirestore from "@/hooks/use-firestore";
 import './Testimonials.css'; // Import the new CSS file
 
@@ -32,31 +31,43 @@ const Testimonials = () => {
           {loading ? (
             <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" size={36} /></div>
           ) : (
-            <div className="testimonials-grid"> {/* Apply the grid class */}
+            <div className="testimonials-grid">
               {testimonials.map((testimonial) => (
-                <Card 
-                  key={testimonial.id}
-                  className="hover-lift"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Avatar className="w-16 h-16">
-                        <AvatarImage src={testimonial.image} alt={testimonial.name} />
-                        <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <Card key={testimonial.id} className="testimonial-card group">
+                  <CardContent className="relative flex h-full flex-col p-7 sm:p-8">
+                    <div className="testimonial-card__glow" aria-hidden="true" />
+                    <div className="relative flex items-start justify-between gap-4">
+                      <Avatar className="h-16 w-16 border-4 border-background shadow-lg ring-2 ring-primary/30 transition-transform duration-300 group-hover:scale-105">
+                        <AvatarImage src={testimonial.imageUrl} alt={`${testimonial.name} profile`} className="object-cover" />
+                        <AvatarFallback className="bg-gradient-gold font-semibold text-white">
+                          {testimonial.name.split(' ').map((namePart) => namePart[0]).join('')}
+                        </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <h3 className="font-bold">{testimonial.name}</h3>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      <div className="rounded-2xl bg-primary/10 p-3 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <Quote className="h-5 w-5" aria-hidden="true" />
                       </div>
                     </div>
-                    
-                    <div className="flex gap-1 mb-4">
-                      {Array.from({ length: testimonial.rating }).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-primary text-primary" />
-                      ))}
+
+                    <div className="relative mt-6 flex flex-wrap items-end justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-bold tracking-tight">{testimonial.name}</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">{testimonial.role}</p>
+                      </div>
+                      <div className="flex gap-1" aria-label={`${testimonial.rating ?? 5} out of 5 stars`}>
+                        {Array.from({ length: testimonial.rating ?? 5 }).map((_, index) => (
+                          <Star key={index} className="h-4 w-4 fill-primary text-primary" aria-hidden="true" />
+                        ))}
+                      </div>
                     </div>
-                    
-                    <p className="text-muted-foreground italic">\"{testimonial.quote}\"</p>
+
+                    <blockquote className="relative mt-6 flex-1 text-base leading-7 text-foreground/80">
+                      “{testimonial.quote}”
+                    </blockquote>
+
+                    <div className="relative mt-7 flex items-center justify-between border-t border-border/70 pt-5 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      <span>Client feedback</span>
+                      <span className="text-primary">{testimonial.rating ?? 5}.0 / 5</span>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
