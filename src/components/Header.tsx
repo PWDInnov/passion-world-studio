@@ -19,31 +19,34 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">
+        Skip to main content
+      </a>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-24">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2 group">
-              <img 
-                src="https://www.dropbox.com/scl/fi/qm9h1nfzpni5qzs2wydqu/ChatGPT_Image_May_21__2026__10_08_26_AM-removebg-preview.png?rlkey=k9e8ak4q6xwbrltxi3dr0x5l5&st=pbitobzy&raw=1" 
-                alt="PassionWorld Designs"
+            <Link to="/" className="flex items-center gap-2 group" aria-label="PassionWorld Designs home">
+              <img
+                src="https://www.dropbox.com/scl/fi/qm9h1nfzpni5qzs2wydqu/ChatGPT_Image_May_21__2026__10_08_26_AM-removebg-preview.png?rlkey=k9e8ak4q6xwbrltxi3dr0x5l5&st=pbitobzy&raw=1"
+                alt="PassionWorld Designs logo"
                 className="w-20 h-20 logo-3d-spin"
               />
             </Link>
-            <img 
+            <img
               src="https://www.dropbox.com/scl/fi/0mbfgf0ys4y2ptd4mtzcc/Copilot_20260204_172642-removebg-preview.png?rlkey=u031udnxp41g5re4dsyiu1cyd&st=ky1ger2s&raw=1"
-              alt="360 Designs"
+              alt="360 Designs logo"
               className="w-16 h-16 ml-20"
             />
-            <img 
+            <img
               src="https://www.dropbox.com/scl/fi/lyzm23qnyjklnqmnpni6s/Creative_Suite_3D_Product_Box-removebg-preview.png?rlkey=u329kwycs3snyr7ken6f56rac&st=n7zdgwic&raw=1"
-              alt="Creative Suite Logo"
+              alt="Creative Suite product logo"
               className="w-16 h-16 ml-8"
             />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6" aria-label="Primary navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -72,7 +75,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden pb-4 animate-fade-in-up">
+          <nav className="md:hidden pb-4 animate-fade-in-up" aria-label="Mobile navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
