@@ -28,8 +28,9 @@ const Marquee = () => {
   const loop = [...items, ...items];
 
   return (
-    <section className="py-12 bg-background border-y border-border overflow-hidden">
+    <section className="py-12 bg-background border-y border-border overflow-hidden" aria-labelledby="services-overview-heading">
       <div className="mb-6 text-center">
+        <h2 id="services-overview-heading" className="sr-only">Digital, design, and technology services</h2>
         <p className="text-sm font-semibold uppercase tracking-widest text-primary">
           Everything Your Brand Needs, Under One Roof
         </p>

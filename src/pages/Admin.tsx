@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +32,7 @@ import ServiceForm from "../components/ServiceForm";
 import BlogManagement from "../components/BlogManagement";
 import TestimonialForm from "../components/TestimonialForm";
 import NewsManagement from "../components/NewsManagement";
+import VacancyManagement from "../components/VacancyManagement";
 import PlannerManager from "../components/PlannerManager";
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 
@@ -235,7 +235,7 @@ const Admin = () => {
           <CardHeader><CardTitle className="flex items-center gap-2"><LayoutDashboard size={24} /> Content Management</CardTitle></CardHeader>
           <CardContent>
             <Tabs defaultValue="messages" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-8"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger><TabsTrigger value="planner">Planner</TabsTrigger></TabsList>
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-9"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="vacancies">Vacancies</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger><TabsTrigger value="planner">Planner</TabsTrigger></TabsList>
 
               <TabsContent value="pages" className="space-y-4">
                 {isHomePageFormOpen ? <HomePageForm onSave={closePageForms} onCancel={closePageForms} />
@@ -269,8 +269,10 @@ const Admin = () => {
 
               <TabsContent value="blog"><BlogManagement /></TabsContent>
 
-              <TabsContent value="news"><NewsManagement /></TabsContent> 
-              
+              <TabsContent value="news"><NewsManagement /></TabsContent>
+
+              <TabsContent value="vacancies"><VacancyManagement /></TabsContent>
+
               <TabsContent value="testimonials" className="space-y-4">
                 {isTestimonialFormOpen ? <TestimonialForm item={selectedTestimonialItem} onSave={handleSaveTestimonialItem} onCancel={() => { setIsTestimonialFormOpen(false); setSelectedTestimonialItem(null);}}/>
                 : <div>

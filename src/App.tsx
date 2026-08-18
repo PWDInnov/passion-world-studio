@@ -1,4 +1,3 @@
-
 import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import Index from "./pages/Index";
 import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import Testimonials from "./pages/Testimonials";
+import Vacancies from "./pages/Vacancies";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
@@ -45,6 +45,7 @@ const App = () => {
               <Route path="/services" element={<Services />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/vacancies" element={<Vacancies />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogPost />} />
               <Route path="/contact" element={<Contact />} />
