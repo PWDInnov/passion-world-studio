@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useState } from "react";
-import { addDoc, collection, onSnapshot, query, serverTimestamp, where } from "firebase/firestore";
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, Clock3, Loader2, MapPin, Send } from "lucide-react";
+import { collection, doc, onSnapshot, query, serverTimestamp, setDoc, Timestamp, where } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, Clock3, FileText, Loader2, MapPin, Send } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import type { VacancyRecord } from "@/data/vacancies";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const applicationEmail = "info.passionworlddesigns@gmail.com";
+const maxCvSize = 5 * 1024 * 1024;
+const cvRetentionDays = 30;
 
 const Vacancies = () => {
   const [vacancies, setVacancies] = useState<VacancyRecord[]>([]);
@@ -60,9 +63,35 @@ const Vacancies = () => {
     setError("");
     const form = new FormData(event.currentTarget);
     const value = (name: string) => String(form.get(name) || "").trim();
+    const cv = form.get("cv");
+
+    if (!(cv instanceof File) || cv.size === 0) {
+      setError("Please attach your CV as a PDF file.");
+      setSubmitting(false);
+      return;
+    }
+    if (cv.type !== "application/pdf" || !cv.name.toLowerCase().endsWith(".pdf")) {
+      setError("Only PDF CV files are accepted.");
+      setSubmitting(false);
+      return;
+    }
+    if (cv.size > maxCvSize) {
+      setError("Your CV must be 5 MB or smaller.");
+      setSubmitting(false);
+      return;
+    }
+    if (await cv.slice(0, 5).text() !== "%PDF-") {
+      setError("The selected file is not a valid PDF.");
+      setSubmitting(false);
+      return;
+    }
+
+    const applicationRef = doc(collection(db, "applications"));
+    const cvStoragePath = `applications/${applicationRef.id}/cv.pdf`;
+    const cvExpiresAt = Timestamp.fromMillis(Date.now() + cvRetentionDays * 24 * 60 * 60 * 1000);
 
     try {
-      await addDoc(collection(db, "applications"), {
+      await setDoc(applicationRef, {
         name: value("name"),
         email: value("email"),
         phone: value("phone"),
@@ -70,8 +99,23 @@ const Vacancies = () => {
         portfolio: value("portfolio"),
         message: value("message"),
         status: "new",
+        cvStoragePath,
+        cvFileName: cv.name,
+        cvSize: cv.size,
+        cvContentType: cv.type,
+        cvStatus: "pending",
+        cvExpiresAt,
         createdAt: serverTimestamp(),
       });
+
+      try {
+        await uploadBytes(ref(storage, cvStoragePath), cv, { contentType: "application/pdf" });
+        await setDoc(applicationRef, { cvStatus: "uploaded" }, { merge: true });
+      } catch (uploadError) {
+        await setDoc(applicationRef, { cvStatus: "failed" }, { merge: true });
+        throw uploadError;
+      }
+
       setSubmitted(true);
     } catch {
       setError(`We could not submit your application. Please email ${applicationEmail} instead.`);
@@ -179,8 +223,13 @@ const Vacancies = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="portfolio">Portfolio or CV link <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                <Label htmlFor="portfolio">Portfolio link <span className="font-normal text-muted-foreground">(optional)</span></Label>
                 <Input id="portfolio" name="portfolio" type="url" placeholder="https://yourportfolio.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cv">CV <span className="font-normal text-muted-foreground">(PDF, max 5 MB)</span></Label>
+                <Input id="cv" name="cv" type="file" accept="application/pdf,.pdf" required className="cursor-pointer file:mr-3 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1 file:text-sm file:font-medium file:text-primary-foreground" />
+                <p className="text-xs text-muted-foreground"><FileText className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />Your CV is stored securely and automatically removed after 30 days.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="message">Cover letter</Label>

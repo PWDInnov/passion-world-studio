@@ -8,8 +8,9 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { BriefcaseBusiness, Loader2, Mail, Pencil, PlusCircle, Trash, Users } from "lucide-react";
-import { db } from "@/firebase";
+import { getDownloadURL, ref } from "firebase/storage";
+import { BriefcaseBusiness, FileText, Loader2, Mail, Pencil, PlusCircle, Trash, Users } from "lucide-react";
+import { db, storage } from "@/firebase";
 import { vacancySeedData, type VacancyRecord } from "@/data/vacancies";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,10 @@ interface ApplicationRecord {
   portfolio: string;
   message: string;
   status: string;
+  cvStoragePath?: string;
+  cvFileName?: string;
+  cvStatus?: string;
+  cvExpiresAt?: { toDate?: () => Date };
   createdAt?: { toDate?: () => Date };
 }
 
@@ -179,6 +184,16 @@ const VacancyManagement = () => {
     }
   };
 
+  const handleViewCv = async (application: ApplicationRecord) => {
+    if (!application.cvStoragePath || application.cvStatus !== "uploaded") return;
+    try {
+      const url = await getDownloadURL(ref(storage, application.cvStoragePath));
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch {
+      setError("Unable to open this CV. It may have expired or been removed.");
+    }
+  };
+
   const handleApplicationStatus = async (application: ApplicationRecord, status: string) => {
     try {
       await updateDoc(doc(db, "applications", application.id), { status });
@@ -252,8 +267,8 @@ const VacancyManagement = () => {
       <section className="border-t pt-8">
         <div className="mb-4"><h3 className="flex items-center gap-2 text-lg font-bold"><Users className="h-5 w-5 text-primary" />Applications <Badge variant="secondary">{applications.length}</Badge></h3><p className="text-sm text-muted-foreground">Review applications submitted through the public vacancies page.</p></div>
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-          <Card><CardContent className="p-2"><div className="space-y-1">{applications.length === 0 ? <p className="p-6 text-center text-sm text-muted-foreground">No applications yet.</p> : applications.map((application) => <button type="button" key={application.id} className={`w-full rounded-lg p-3 text-left transition-colors ${selectedApplication?.id === application.id ? "bg-primary/10" : "hover:bg-muted"}`} onClick={() => setSelectedApplication(application)}><div className="flex items-start justify-between gap-3"><span className="font-semibold">{application.name}</span><Badge variant="outline" className="text-xs">{application.status || "new"}</Badge></div><p className="truncate text-sm text-muted-foreground">{application.role}</p><p className="text-xs text-muted-foreground">{formatApplicationDate(application.createdAt)}</p></button>)}</div></CardContent></Card>
-          <Card><CardHeader><CardTitle>Application details</CardTitle></CardHeader><CardContent>{selectedApplication ? <div className="space-y-4"><div><h4 className="text-xl font-bold">{selectedApplication.name}</h4><a href={`mailto:${selectedApplication.email}`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><Mail className="h-3.5 w-3.5" />{selectedApplication.email}</a>{selectedApplication.phone && <p className="text-sm text-muted-foreground">{selectedApplication.phone}</p>}</div><div className="rounded-lg bg-muted/50 p-4"><p className="text-sm font-semibold">Applying for</p><p>{selectedApplication.role}</p></div><div><p className="mb-1 text-sm font-semibold">Cover letter</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{selectedApplication.message}</p></div>{selectedApplication.portfolio && /^https?:\/\//i.test(selectedApplication.portfolio) && <a href={selectedApplication.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">View portfolio or CV</a>}<div className="flex flex-wrap items-center gap-2 border-t pt-4"><Label htmlFor="application-status">Status</Label><select id="application-status" value={selectedApplication.status || "new"} onChange={(event) => handleApplicationStatus(selectedApplication, event.target.value)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="new">New</option><option value="reviewing">Reviewing</option><option value="shortlisted">Shortlisted</option><option value="rejected">Rejected</option><option value="hired">Hired</option></select><Button variant="destructive" size="sm" className="ml-auto" onClick={() => handleDeleteApplication(selectedApplication.id)}><Trash className="mr-2 h-4 w-4" />Delete</Button></div></div> : <div className="flex min-h-56 flex-col items-center justify-center text-center text-muted-foreground"><BriefcaseBusiness className="mb-3 h-10 w-10" /><p>Select an application to view its details.</p></div>}</CardContent></Card>
+          <Card><CardContent className="p-2"><div className="space-y-1">{applications.length === 0 ? <p className="p-6 text-center text-sm text-muted-foreground">No applications yet.</p> : applications.map((application) => <button type="button" key={application.id} className={`w-full rounded-lg p-3 text-left transition-colors ${selectedApplication?.id === application.id ? "bg-primary/10" : "hover:bg-muted"}`} onClick={() => setSelectedApplication(application)}><div className="flex items-start justify-between gap-3"><span className="font-semibold">{application.name}</span><Badge variant="outline" className="text-xs">{application.status || "new"}</Badge></div><p className="truncate text-sm text-muted-foreground">{application.role}</p><p className="text-xs text-muted-foreground">{formatApplicationDate(application.createdAt)}</p>{application.cvStatus && <p className="text-xs text-muted-foreground">CV: {application.cvStatus}</p>}</button>)}</div></CardContent></Card>
+          <Card><CardHeader><CardTitle>Application details</CardTitle></CardHeader><CardContent>{selectedApplication ? <div className="space-y-4"><div><h4 className="text-xl font-bold">{selectedApplication.name}</h4><a href={`mailto:${selectedApplication.email}`} className="inline-flex items-center gap-1 text-sm text-primary hover:underline"><Mail className="h-3.5 w-3.5" />{selectedApplication.email}</a>{selectedApplication.phone && <p className="text-sm text-muted-foreground">{selectedApplication.phone}</p>}</div><div className="rounded-lg bg-muted/50 p-4"><p className="text-sm font-semibold">Applying for</p><p>{selectedApplication.role}</p></div><div><p className="mb-1 text-sm font-semibold">Cover letter</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{selectedApplication.message}</p></div>{selectedApplication.portfolio && /^https?:\/\//i.test(selectedApplication.portfolio) && <a href={selectedApplication.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">View portfolio</a>}{selectedApplication.cvStoragePath && <Button type="button" variant="outline" size="sm" onClick={() => handleViewCv(selectedApplication)} disabled={selectedApplication.cvStatus !== "uploaded"}><FileText className="mr-2 h-4 w-4" />{selectedApplication.cvStatus === "expired" ? "CV expired" : selectedApplication.cvStatus === "failed" ? "CV unavailable" : "View CV"}</Button>}<div className="flex flex-wrap items-center gap-2 border-t pt-4"><Label htmlFor="application-status">Status</Label><select id="application-status" value={selectedApplication.status || "new"} onChange={(event) => handleApplicationStatus(selectedApplication, event.target.value)} className="h-9 rounded-md border border-input bg-background px-3 text-sm"><option value="new">New</option><option value="reviewing">Reviewing</option><option value="shortlisted">Shortlisted</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="hired">Hired</option></select><Button variant="destructive" size="sm" className="ml-auto" onClick={() => handleDeleteApplication(selectedApplication.id)}><Trash className="mr-2 h-4 w-4" />Delete</Button></div></div> : <div className="flex min-h-56 flex-col items-center justify-center text-center text-muted-foreground"><BriefcaseBusiness className="mb-3 h-10 w-10" /><p>Select an application to view its details.</p></div>}</CardContent></Card>
         </div>
       </section>
     </div>
