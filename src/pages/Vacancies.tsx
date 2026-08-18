@@ -1,7 +1,10 @@
-import { FormEvent, useState } from "react";
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, Clock3, MapPin, Send } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { addDoc, collection, onSnapshot, query, serverTimestamp, where } from "firebase/firestore";
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, Clock3, Loader2, MapPin, Send } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { db } from "@/firebase";
+import type { VacancyRecord } from "@/data/vacancies";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,36 +14,31 @@ import { Textarea } from "@/components/ui/textarea";
 
 const applicationEmail = "info.passionworlddesigns@gmail.com";
 
-const vacancies = [
-  {
-    title: "Frontend Developer",
-    type: "Full-time",
-    location: "Remote",
-    summary: "Build polished, accessible web experiences for brands that want to stand out.",
-    responsibilities: ["Create responsive interfaces with React and TypeScript", "Collaborate with designers and clients", "Write maintainable, tested frontend code"],
-    skills: ["React", "TypeScript", "Tailwind CSS"],
-  },
-  {
-    title: "Graphic Designer",
-    type: "Full-time",
-    location: "Remote",
-    summary: "Shape memorable visual identities and creative campaigns for growing businesses.",
-    responsibilities: ["Develop brand identities and marketing materials", "Present concepts and incorporate feedback", "Prepare production-ready digital and print assets"],
-    skills: ["Branding", "Adobe Creative Suite", "Typography"],
-  },
-  {
-    title: "Digital Marketing Specialist",
-    type: "Contract",
-    location: "Remote",
-    summary: "Turn creative ideas into measurable campaigns that help our clients reach the right audience.",
-    responsibilities: ["Plan and manage multi-channel campaigns", "Create content calendars and performance reports", "Use insights to improve campaign results"],
-    skills: ["Content Strategy", "SEO", "Analytics"],
-  },
-];
-
 const Vacancies = () => {
+  const [vacancies, setVacancies] = useState<VacancyRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const vacanciesQuery = query(collection(db, "vacancies"), where("isOpen", "==", true));
+    return onSnapshot(
+      vacanciesQuery,
+      (snapshot) => {
+        const records = snapshot.docs
+          .map((item) => ({ id: item.id, ...item.data() }) as VacancyRecord)
+          .sort((first, second) => first.title.localeCompare(second.title));
+        setVacancies(records);
+        setLoading(false);
+      },
+      () => {
+        setError("We could not load open positions right now. Please try again later.");
+        setLoading(false);
+      },
+    );
+  }, []);
 
   const selectRole = (role: string) => {
     setSelectedRole(role);
@@ -48,22 +46,32 @@ const Vacancies = () => {
     document.getElementById("application-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitting(true);
+    setSubmitted(false);
     const form = new FormData(event.currentTarget);
-    const subject = `Application: ${form.get("role")}`;
-    const body = [
-      `Name: ${form.get("name")}`,
-      `Email: ${form.get("email")}`,
-      `Phone: ${form.get("phone") || "Not provided"}`,
-      `Portfolio or CV link: ${form.get("portfolio") || "Not provided"}`,
-      "",
-      "Cover letter:",
-      form.get("message"),
-    ].join("\n");
+    const value = (name: string) => String(form.get(name) || "").trim();
 
-    window.location.href = `mailto:${applicationEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setSubmitted(true);
+    try {
+      await addDoc(collection(db, "applications"), {
+        name: value("name"),
+        email: value("email"),
+        phone: value("phone"),
+        role: value("role"),
+        portfolio: value("portfolio"),
+        message: value("message"),
+        status: "new",
+        createdAt: serverTimestamp(),
+      });
+      event.currentTarget.reset();
+      setSelectedRole("");
+      setSubmitted(true);
+    } catch {
+      setError(`We could not submit your application. Please email ${applicationEmail} instead.`);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -89,9 +97,15 @@ const Vacancies = () => {
             <p className="text-muted-foreground">Explore our current openings and tell us how your perspective can help PassionWorld Designs grow.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {error && <p role="alert" className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
+          {loading ? (
+            <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : vacancies.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-10 text-center"><h3 className="text-xl font-semibold mb-2">No open roles right now</h3><p className="text-muted-foreground">We are always interested in meeting talented people. Check back soon or send us a general application.</p></div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {vacancies.map((vacancy) => (
-              <Card key={vacancy.title} className="flex h-full flex-col border-primary/20 hover-lift">
+              <Card key={vacancy.id} className="flex h-full flex-col border-primary/20 hover-lift">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="rounded-xl bg-primary/10 p-3 text-primary">
@@ -127,7 +141,8 @@ const Vacancies = () => {
                 </CardFooter>
               </Card>
             ))}
-          </div>
+            </div>
+          )}
         </section>
 
         <section id="application-form" className="scroll-mt-28 py-20 bg-background" aria-labelledby="application-heading">
@@ -136,7 +151,7 @@ const Vacancies = () => {
               <div>
                 <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Make an impression</p>
                 <h2 id="application-heading" className="text-3xl md:text-4xl font-bold mb-4">Ready to apply?</h2>
-                <p className="text-muted-foreground mb-6">Share a little about yourself and the work you would love to do with us. Your email app will open with the application details ready to send.</p>
+                <p className="text-muted-foreground mb-6">Share a little about yourself and the work you would love to do with us. Your application will be sent securely to our hiring team for review.</p>
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 text-sm text-muted-foreground">
                   <p className="font-semibold text-foreground mb-1">No perfect fit yet?</p>
                   <p>We welcome great people. Choose “General Application” and tell us where you can make an impact.</p>
@@ -178,11 +193,11 @@ const Vacancies = () => {
                       <Label htmlFor="message">Cover letter</Label>
                       <Textarea id="message" name="message" placeholder="Tell us about your experience and why you would be a great fit..." rows={6} required />
                     </div>
-                    <Button type="submit" size="lg" className="w-full sm:w-auto">
-                      <Send className="h-4 w-4" aria-hidden="true" />
-                      Prepare application email
+                    <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting}>
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
+                      {submitting ? "Submitting application..." : "Submit application"}
                     </Button>
-                    {submitted && <p role="status" className="text-sm text-muted-foreground">Your email app should open shortly. If it does not, send your application to <a className="text-primary underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a>.</p>}
+                    {submitted && <p role="status" className="text-sm text-green-600">Thanks for applying. Our hiring team will review your application and get back to you.</p>}
                   </form>
                 </CardContent>
               </Card>
