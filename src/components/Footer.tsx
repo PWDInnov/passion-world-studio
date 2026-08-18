@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -106,6 +105,7 @@ const Footer = () => {
               <li><Link to="/services" className="text-gray-300 hover:text-primary text-sm">Services</Link></li>
               <li><Link to="/portfolio" className="text-gray-300 hover:text-primary text-sm">Portfolio</Link></li>
               <li><Link to="/testimonials" className="text-gray-300 hover:text-primary text-sm">Testimonials</Link></li>
+              <li><Link to="/vacancies" className="text-gray-300 hover:text-primary text-sm">Vacancies</Link></li>
               <li><Link to="/blog" className="text-gray-300 hover:text-primary text-sm">Blog</Link></li>
               <li><Link to="/contact" className="text-gray-300 hover:text-primary text-sm">Contact Us</Link></li>
             </ul>
