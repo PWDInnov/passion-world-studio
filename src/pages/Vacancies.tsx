@@ -8,6 +8,7 @@ import type { VacancyRecord } from "@/data/vacancies";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +19,7 @@ const Vacancies = () => {
   const [vacancies, setVacancies] = useState<VacancyRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedVacancy, setSelectedVacancy] = useState<VacancyRecord | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,16 +41,23 @@ const Vacancies = () => {
     );
   }, []);
 
-  const selectRole = (role: string) => {
-    setSelectedRole(role);
+  const selectRole = (vacancy: VacancyRecord) => {
+    setSelectedVacancy(vacancy);
     setSubmitted(false);
-    document.getElementById("application-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setError("");
+  };
+
+  const closeApplication = () => {
+    setSelectedVacancy(null);
+    setSubmitted(false);
+    setError("");
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitting(true);
     setSubmitted(false);
+    setError("");
     const form = new FormData(event.currentTarget);
     const value = (name: string) => String(form.get(name) || "").trim();
 
@@ -64,8 +72,6 @@ const Vacancies = () => {
         status: "new",
         createdAt: serverTimestamp(),
       });
-      event.currentTarget.reset();
-      setSelectedRole("");
       setSubmitted(true);
     } catch {
       setError(`We could not submit your application. Please email ${applicationEmail} instead.`);
@@ -134,7 +140,7 @@ const Vacancies = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="button" className="w-full" onClick={() => selectRole(vacancy.title)}>
+                  <Button type="button" className="w-full" onClick={() => selectRole(vacancy)}>
                     Apply for this role
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Button>
@@ -145,65 +151,50 @@ const Vacancies = () => {
           )}
         </section>
 
-        <section id="application-form" className="scroll-mt-28 py-20 bg-background" aria-labelledby="application-heading">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-12 max-w-6xl mx-auto items-start">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Make an impression</p>
-                <h2 id="application-heading" className="text-3xl md:text-4xl font-bold mb-4">Ready to apply?</h2>
-                <p className="text-muted-foreground mb-6">Share a little about yourself and the work you would love to do with us. Your application will be sent securely to our hiring team for review.</p>
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 text-sm text-muted-foreground">
-                  <p className="font-semibold text-foreground mb-1">No perfect fit yet?</p>
-                  <p>We welcome great people. Choose “General Application” and tell us where you can make an impact.</p>
+        <Dialog open={Boolean(selectedVacancy)} onOpenChange={(open) => !open && closeApplication()}>
+          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Apply for {selectedVacancy?.title}</DialogTitle>
+              <DialogDescription>Share your details and our hiring team will review your application.</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full name</Label>
+                  <Input id="name" name="name" placeholder="Your full name" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email address</Label>
+                  <Input id="email" name="email" type="email" placeholder="you@example.com" required />
                 </div>
               </div>
-
-              <Card>
-                <CardContent className="p-6 md:p-8">
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Full name</Label>
-                        <Input id="name" name="name" placeholder="Your full name" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email address</Label>
-                        <Input id="email" name="email" type="email" placeholder="you@example.com" required />
-                      </div>
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone number <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                        <Input id="phone" name="phone" type="tel" placeholder="+264 ..." />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="role">Role you are applying for</Label>
-                        <select id="role" name="role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                          <option value="" disabled>Select a role</option>
-                          {vacancies.map((vacancy) => <option key={vacancy.title} value={vacancy.title}>{vacancy.title}</option>)}
-                          <option value="General Application">General Application</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="portfolio">Portfolio or CV link <span className="text-muted-foreground font-normal">(optional)</span></Label>
-                      <Input id="portfolio" name="portfolio" type="url" placeholder="https://yourportfolio.com" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Cover letter</Label>
-                      <Textarea id="message" name="message" placeholder="Tell us about your experience and why you would be a great fit..." rows={6} required />
-                    </div>
-                    <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting}>
-                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
-                      {submitting ? "Submitting application..." : "Submit application"}
-                    </Button>
-                    {submitted && <p role="status" className="text-sm text-green-600">Thanks for applying. Our hiring team will review your application and get back to you.</p>}
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone number <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                  <Input id="phone" name="phone" type="tel" placeholder="+264 ..." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role you are applying for</Label>
+                  <Input id="role" name="role" value={selectedVacancy?.title || ""} readOnly required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="portfolio">Portfolio or CV link <span className="font-normal text-muted-foreground">(optional)</span></Label>
+                <Input id="portfolio" name="portfolio" type="url" placeholder="https://yourportfolio.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="message">Cover letter</Label>
+                <Textarea id="message" name="message" placeholder="Tell us about your experience and why you would be a great fit..." rows={6} required />
+              </div>
+              <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={submitting || submitted}>
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
+                {submitting ? "Submitting application..." : submitted ? "Application submitted" : "Submit application"}
+              </Button>
+              {submitted && <p role="status" className="text-sm text-green-600">Thanks for applying. Our hiring team will review your application and get back to you.</p>}
+              {error && <p role="alert" className="text-sm text-destructive">{error} Please email <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a> if needed.</p>}
+            </form>
+          </DialogContent>
+        </Dialog>
       </main>
       <Footer />
     </div>
