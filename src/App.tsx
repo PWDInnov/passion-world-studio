@@ -8,14 +8,13 @@ import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import Testimonials from "./pages/Testimonials";
 import Vacancies from "./pages/Vacancies";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
+import LearningCenter from "./pages/LearningCenter";
+import ArticlePage from "./pages/ArticlePage";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import LoadingScreen from "@/components/LoadingScreen";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import DesignAssistant from "@/components/DesignAssistant";
+import PassionChatbot from "@/components/PassionChatbot";
 import ProjectPlannerPage from "./pages/tools/ProjectPlannerPage";
 import NewsPage from "./pages/News";
 
@@ -46,16 +45,15 @@ const App = () => {
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/vacancies" element={<Vacancies />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/learning-center" element={<LearningCenter />} />
+              <Route path="/learning-center/:id" element={<ArticlePage />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/tools/project-planner" element={<ProjectPlannerPage />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <WhatsAppButton />
-            <DesignAssistant />
+            <PassionChatbot />
           </BrowserRouter>
         )}
       </TooltipProvider>
