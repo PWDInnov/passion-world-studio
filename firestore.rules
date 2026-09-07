@@ -2,21 +2,80 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Allow public read access to all collections
     match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /services/{serviceId} {
       allow read: if true;
     }
 
-    // Allow public write access to the 'messages' collection
-    match /messages/{messageId} {
-      allow write: if true;
+    match /portfolio/{portfolioId} {
+      allow read: if true;
     }
 
-    // Restrict write access to all other collections to authenticated users
-    match /{path=**}/ {document=*} {
-      allow write: if request.auth != null && path != "messages";
+    match /blog/{postId} {
+      allow read: if true;
     }
-    
+
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+    }
+
+    match /siteContent/{contentId} {
+      allow read: if true;
+    }
+
+    match /vacancies/{vacancyId} {
+      allow read: if resource.data.isOpen == true || request.auth != null;
+    }
+
+    match /messages/{messageId} {
+      allow create: if request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.message is string;
+    }
+
+    match /applications/{applicationId} {
+      allow create: if request.resource.data.keys().hasOnly([
+          'name', 'email', 'phone', 'role', 'portfolio', 'message', 'status', 'cvStoragePath',
+          'cvFileName', 'cvSize', 'cvContentType', 'cvStatus', 'cvExpiresAt', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.phone is string
+        && request.resource.data.role is string
+        && request.resource.data.role.size() > 0
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 10000
+        && request.resource.data.portfolio is string
+        && request.resource.data.status == 'new'
+        && request.resource.data.cvStoragePath is string
+        && request.resource.data.cvFileName is string
+        && request.resource.data.cvFileName.size() > 0
+        && request.resource.data.cvFileName.size() <= 255
+        && request.resource.data.cvSize is int
+        && request.resource.data.cvSize > 0
+        && request.resource.data.cvSize <= 5242880
+        && request.resource.data.cvContentType == 'application/pdf'
+        && request.resource.data.cvStatus == 'pending'
+        && request.resource.data.cvExpiresAt is timestamp
+        && request.resource.data.createdAt is timestamp;
+      allow read: if request.auth != null;
+      allow update: if request.auth != null
+        || (resource.data.cvStatus == 'pending'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cvStatus'])
+          && (request.resource.data.cvStatus == 'uploaded' || request.resource.data.cvStatus == 'failed'));
+      allow delete: if request.auth != null || resource.data.cvStatus == 'pending';
+    }
   }
 }

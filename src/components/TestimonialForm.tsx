@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/components/ui/use-toast";
 
 const TestimonialForm = ({ item, onSave, onCancel }) => {
@@ -62,7 +62,29 @@ const TestimonialForm = ({ item, onSave, onCancel }) => {
       <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
       <Input placeholder="Role (e.g., CEO, TechStart Inc)" value={role} onChange={(e) => setRole(e.target.value)} required />
       <Textarea placeholder="Quote" value={quote} onChange={(e) => setQuote(e.target.value)} required />
-      <Input placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+      <div className="space-y-2">
+        <label htmlFor="testimonial-image-url" className="text-sm font-medium">Profile image URL</label>
+        <Input
+          id="testimonial-image-url"
+          type="url"
+          inputMode="url"
+          placeholder="https://example.com/client-photo.jpg"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        <p className="text-xs text-muted-foreground">Paste a direct image link from Dropbox, Facebook, or another image host.</p>
+        {imageUrl && (
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={imageUrl} alt="Profile preview" className="bg-white object-contain" />
+              <AvatarFallback className="bg-gradient-gold text-white">
+                {name ? name.split(' ').map((namePart) => namePart[0]).join('') : '?'}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm text-muted-foreground">Image preview</span>
+          </div>
+        )}
+      </div>
       <Input type="number" placeholder="Rating (1-5)" value={rating} onChange={(e) => setRating(Number(e.target.value))} min="1" max="5" required />
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>

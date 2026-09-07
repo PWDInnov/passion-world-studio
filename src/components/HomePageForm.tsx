@@ -14,6 +14,7 @@ const HomePageForm = ({ onSave, onCancel }) => {
     heroTitle: '',
     heroSubtitle: '',
     heroCtaText: '',
+    heroVideoUrl: '',
   });
   const [loading, setLoading] = useState(true);
   const homePageDocRef = doc(db, 'siteContent', 'homePage');
@@ -22,13 +23,18 @@ const HomePageForm = ({ onSave, onCancel }) => {
     const fetchData = async () => {
       const docSnap = await getDoc(homePageDocRef);
       if (docSnap.exists()) {
-        setFormData(docSnap.data());
+        const data = docSnap.data();
+        setFormData({
+          ...data,
+          heroVideoUrl: data.heroVideoUrl || '/hero-video.mp4',
+        });
       } else {
         // Initialize with default values if the document doesn't exist
         setFormData({
             heroTitle: "Innovative, Affordable, Unique Design Solutions",
             heroSubtitle: "We transform your vision into stunning reality. From web design to branding, we do it all with passion.",
             heroCtaText: "Our Services",
+            heroVideoUrl: "/hero-video.mp4",
         });
       }
       setLoading(false);
@@ -45,7 +51,12 @@ const HomePageForm = ({ onSave, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await setDoc(homePageDocRef, formData, { merge: true });
+    // Ensure heroVideoUrl is not empty before saving
+    const dataToSave = {
+      ...formData,
+      heroVideoUrl: formData.heroVideoUrl || '/hero-video.mp4',
+    };
+    await setDoc(homePageDocRef, dataToSave, { merge: true });
     setLoading(false);
     onSave();
   };
@@ -73,6 +84,10 @@ const HomePageForm = ({ onSave, onCancel }) => {
           <div className="space-y-2">
             <Label htmlFor="heroCtaText">Hero Button Text</Label>
             <Input id="heroCtaText" value={formData.heroCtaText} onChange={handleChange} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="heroVideoUrl">Hero Video URL</Label>
+            <Input id="heroVideoUrl" value={formData.heroVideoUrl} onChange={handleChange} placeholder="/hero-video.mp4" />
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>

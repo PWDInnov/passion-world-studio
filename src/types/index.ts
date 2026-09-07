@@ -1,4 +1,3 @@
-
 export interface Service {
   id: string;
   icon: string;
@@ -31,7 +30,7 @@ export interface Testimonial {
   id: string;
   name: string;
   role: string;
-  image: string;
+  imageUrl: string;
   quote: string;
   rating: number;
 }

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlusCircle, Edit, Trash, Loader2 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import RichTextEditor from './RichTextEditor';
 
 const BlogManagement = () => {
   const [posts, setPosts] = useState([]);
@@ -91,6 +92,10 @@ const BlogManagement = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleContentChange = (value: string) => {
+    setFormData(prev => ({ ...prev, content: value }));
   };
 
   const handleFormSubmit = async (e) => {
@@ -174,7 +179,7 @@ const BlogManagement = () => {
                  <form onSubmit={handleFormSubmit} className="space-y-4 py-4 pr-6">
                     <Input name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
                     <Textarea name="excerpt" placeholder="Excerpt" value={formData.excerpt} onChange={handleInputChange} required />
-                    <Textarea name="content" placeholder="Content (HTML supported)" value={formData.content} onChange={handleInputChange} rows={10} required />
+                    <RichTextEditor value={formData.content} onChange={handleContentChange} />
                     <Input name="author" placeholder="Author" value={formData.author} onChange={handleInputChange} required />
                     <Input name="readTime" placeholder="Read Time (e.g., 5 min read)" value={formData.readTime} onChange={handleInputChange} required />
                     <Input name="imageUrl" placeholder="Image URL" value={formData.imageUrl} onChange={handleInputChange} />

@@ -11,6 +11,7 @@ import { Loader2, Mail, Phone, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Skeleton } from '@/components/ui/skeleton';
+import emailjs from 'emailjs-com';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -70,13 +71,19 @@ const Contact = () => {
     setSubmitMessage('');
 
     try {
+      // Send email using EmailJS
+      await emailjs.send(
+        'service_431mism',
+        'template_grx5bzd',
+        formData,
+        '4VXVtAmH-4z0TKLII'
+      );
+      
       // Save form data to Firestore
       await addDoc(collection(db, 'messages'), {
         ...formData,
         timestamp: serverTimestamp()
       });
-
-      // TODO: Implement email sending functionality here
 
       setSubmitMessage('Your message has been sent successfully!');
       setFormData({ name: '', email: '', message: '' });
