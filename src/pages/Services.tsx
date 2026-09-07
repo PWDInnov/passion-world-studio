@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ServiceCatalog from "@/components/ServiceCatalog";
@@ -6,10 +5,43 @@ import PackageBuilder from "@/components/PackageBuilder";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import PhotoGrid from '@/components/Photo';
+import SEO from "@/components/SEO";
+import { serviceCatalog } from "@/data/serviceCatalog";
 
 const Services = () => {
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Design, Development and Digital Marketing Services",
+    description: "Graphic design, branding, website development, software development, digital marketing, creative content, IT services, and printing from PassionWorld Designs.",
+    url: "https://passionworlddesigns.com/services",
+    mainEntity: {
+      "@type": "OfferCatalog",
+      name: "PassionWorld Designs services",
+      itemListElement: serviceCatalog.map((category) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: category.title,
+          description: category.description,
+          provider: {
+            "@type": "Organization",
+            name: "PassionWorld Designs",
+            url: "https://passionworlddesigns.com/",
+          },
+        },
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
+      <SEO
+        title="Graphic Design, Website Design & Digital Services | PassionWorld Designs"
+        description="Explore graphic design, logo design, branding, website design, web development, digital marketing, software, IT, creative content, and printing services."
+        canonical="/services"
+        structuredData={serviceSchema}
+      />
       <Header />
       <main className="flex-1">
 

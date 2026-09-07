@@ -9,7 +9,8 @@ import Marquee from "@/components/Marquee";
 import useFirestore from '@/hooks/use-firestore';
 import { useInView } from 'react-intersection-observer';
 import { useState } from "react";
-import NewsSection from "@/components/NewsSection"; // Import the new component
+import NewsSection from "@/components/NewsSection";
+import SEO from "@/components/SEO";
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -58,6 +59,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Graphic Design, Website Design & Branding Services | PassionWorld Designs"
+        description="PassionWorld Designs provides graphic design, logo design, branding, website design, web development, digital marketing, and creative content services."
+        canonical="/"
+      />
       <Header />
       
       <main id="main-content" className="flex-1">

@@ -1,15 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'; // Assuming you have heroicons
+import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
+import SEO from "@/components/SEO";
+import type { BlogPost } from "@/types";
 
 const ArticlePage = () => {
   const { id } = useParams<{ id: string }>();
-  const [article, setArticle] = useState<any>(null);
+  const [article, setArticle] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,12 @@ const ArticlePage = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setArticle({ id: docSnap.id, ...docSnap.data() });
+          const articleData = { id: docSnap.id, ...docSnap.data() } as BlogPost;
+          if (articleData.status && articleData.status !== "published") {
+            setError('Article not found.');
+          } else {
+            setArticle(articleData);
+          }
         } else {
           setError('Article not found.');
         }
@@ -39,6 +45,27 @@ const ArticlePage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO
+        title={article ? (article.metaTitle || `${article.title} | PassionWorld Designs`) : "Article | PassionWorld Designs"}
+        description={article ? (article.metaDescription || article.excerpt) : "Read design, branding, website, and digital growth insights from PassionWorld Designs."}
+        canonical={`/learning-center/${article?.id || id || "article"}`}
+        robots={article ? "index, follow" : "noindex, follow"}
+        type={article ? "article" : "website"}
+        image={article?.imageUrl || undefined}
+        imageAlt={article?.imageAlt || article?.title}
+        structuredData={article ? {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: article.title,
+          description: article.metaDescription || article.excerpt,
+          image: article.imageUrl ? [article.imageUrl] : undefined,
+          datePublished: article.publishedAt || article.date,
+          dateModified: article.updatedAt || article.date,
+          author: { "@type": "Person", name: article.author },
+          publisher: { "@type": "Organization", name: "PassionWorld Designs", url: "https://passionworlddesigns.com/" },
+          mainEntityOfPage: { "@type": "WebPage", "@id": `https://passionworlddesigns.com/learning-center/${article.id}` },
+        } : undefined}
+      />
       <Header />
       <main id="main-content" className="flex-grow">
         <div className="container mx-auto px-4 py-8">
@@ -46,7 +73,7 @@ const ArticlePage = () => {
           {error && <div className="text-center text-red-500">{error}</div>}
           {article && (
             <article className="prose lg:prose-xl max-w-none mx-auto">
-              {article.imageUrl && <img src={article.imageUrl} alt={article.title} className="w-full h-auto rounded-lg mb-8" />}              <h1 className="text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">{article.title}</h1>
+              {article.imageUrl && <img src={article.imageUrl} alt={article.imageAlt || article.title} className="w-full h-auto rounded-lg mb-8" />}              <h1 className="text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">{article.title}</h1>
               <div className="flex items-center text-lg text-muted-foreground mb-4">
                 <p className="font-medium text-gray-900">By {article.author}</p>
                 <span className="mx-3">|</span>
@@ -65,7 +92,7 @@ const ArticlePage = () => {
                   <span key={tag} className="inline-block bg-gray-100 text-gray-800 text-sm font-medium mr-2 mb-2 px-3 py-1 rounded-full dark:bg-gray-700 dark:text-gray-300">{tag}</span>
                 ))}
               </div>
-              <div className="text-lg" dangerouslySetInnerHTML={{ __html: article.content }} />
+              <div className="text-lg" dangerouslySetInnerHTML={{ __html: article.content || "" }} />
             </article>
           )}
         </div>
