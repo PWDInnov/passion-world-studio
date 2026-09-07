@@ -94,6 +94,7 @@ const Home = () => {
             ) : (
               <AnimatedSection effect="fade-up">
                 <div className="max-w-4xl mx-auto text-center">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.35em] text-primary-foreground/90">PassionWorld Designs</p>
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary shadow-2xl mb-8 animate-float-slow animate-gold-pulse">
                     <span className="font-bold text-4xl text-primary-foreground">
                         <span style={{ animation: 'anim_P 3s infinite', opacity: 0 }}>P</span>
