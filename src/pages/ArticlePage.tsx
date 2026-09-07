@@ -62,8 +62,8 @@ const ArticlePage = () => {
           datePublished: article.publishedAt || article.date,
           dateModified: article.updatedAt || article.date,
           author: { "@type": "Person", name: article.author },
-          publisher: { "@type": "Organization", name: "PassionWorld Designs", url: "https://passionworlddesigns.com/" },
-          mainEntityOfPage: { "@type": "WebPage", "@id": `https://passionworlddesigns.com/learning-center/${article.id}` },
+          publisher: { "@type": "Organization", name: "PassionWorld Designs", url: "https://www.passionworlddesigns.com/" },
+          mainEntityOfPage: { "@type": "WebPage", "@id": `https://www.passionworlddesigns.com/learning-center/${article.id}` },
         } : undefined}
       />
       <Header />

@@ -11,7 +11,7 @@ type SEOProps = {
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 };
 
-const siteUrl = "https://passionworlddesigns.com";
+const siteUrl = "https://www.passionworlddesigns.com";
 const defaultImage = `${siteUrl}/hero-background.jpg`;
 
 const absoluteUrl = (value: string) => new URL(value, siteUrl).toString();

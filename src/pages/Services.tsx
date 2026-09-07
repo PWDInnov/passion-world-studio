@@ -14,7 +14,7 @@ const Services = () => {
     "@type": "CollectionPage",
     name: "Design, Development and Digital Marketing Services",
     description: "Graphic design, branding, website development, software development, digital marketing, creative content, IT services, and printing from PassionWorld Designs.",
-    url: "https://passionworlddesigns.com/services",
+    url: "https://www.passionworlddesigns.com/services",
     mainEntity: {
       "@type": "OfferCatalog",
       name: "PassionWorld Designs services",
@@ -27,7 +27,7 @@ const Services = () => {
           provider: {
             "@type": "Organization",
             name: "PassionWorld Designs",
-            url: "https://passionworlddesigns.com/",
+            url: "https://www.passionworlddesigns.com/",
           },
         },
       })),
