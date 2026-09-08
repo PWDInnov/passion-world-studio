@@ -35,6 +35,7 @@ import NewsManagement from "../components/NewsManagement";
 import VacancyManagement from "../components/VacancyManagement";
 import PlannerManager from "../components/PlannerManager";
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
+import SEO from "@/components/SEO";
 
 const Admin = () => {
   const [user, loading] = useAuthState(auth);
@@ -186,12 +187,13 @@ const Admin = () => {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-muted/30"><p>Loading...</p></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-muted/30"><SEO title="Admin | PassionWorld Designs" description="Private content management dashboard." robots="noindex, nofollow" /><p>Loading...</p></div>;
   }
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30">
+        <SEO title="Admin Login | PassionWorld Designs" description="Private content management dashboard." robots="noindex, nofollow" />
         <Card className="w-full max-w-md">
           <CardHeader><CardTitle>Admin Login</CardTitle></CardHeader>
           <CardContent>
@@ -219,6 +221,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <SEO title="Admin Dashboard | PassionWorld Designs" description="Private content management dashboard." robots="noindex, nofollow" />
        <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center"><span className="text-white font-bold">PW</span></div><h1 className="text-xl font-bold">Admin Dashboard</h1></div>

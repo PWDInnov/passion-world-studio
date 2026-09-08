@@ -1,4 +1,3 @@
-
 import useFirestore from "@/hooks/use-firestore";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from 'lucide-react';
+import SEO from "@/components/SEO";
 
 const Portfolio = () => {
   const { docs: portfolioItems, loading } = useFirestore('portfolio');
@@ -15,6 +15,11 @@ const Portfolio = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Graphic Design, Branding & Website Portfolio | PassionWorld Designs"
+        description="Browse PassionWorld Designs projects across graphic design, branding, website development, mobile apps, and digital experiences."
+        canonical="/portfolio"
+      />
       <Header />
       <main className="flex-1">
         <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">

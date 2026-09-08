@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import SEO from "@/components/SEO";
 
 const applicationEmail = "info.passionworlddesigns@gmail.com";
 const maxCvSize = 5 * 1024 * 1024;
@@ -126,6 +127,11 @@ const Vacancies = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
+      <SEO
+        title="Careers at PassionWorld Designs"
+        description="Explore creative, design, development, marketing, and technical career opportunities at PassionWorld Designs."
+        canonical="/vacancies"
+      />
       <Header />
       <main id="main-content" className="flex-1">
         <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">

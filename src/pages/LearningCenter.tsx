@@ -1,14 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'; // Assuming you have heroicons
+import { CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
+import SEO from "@/components/SEO";
+import type { BlogPost } from "@/types";
 
 const LearningCenter = () => {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +18,10 @@ const LearningCenter = () => {
       try {
         setLoading(true);
         const querySnapshot = await getDocs(collection(db, 'blog'));
-        const articlesData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const articlesData = querySnapshot.docs
+          .map((articleDoc) => ({ id: articleDoc.id, ...articleDoc.data() } as BlogPost))
+          .filter((article) => !article.status || article.status === "published")
+          .sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime());
         setArticles(articlesData);
       } catch (err) {
         setError('Failed to fetch articles.');
@@ -32,6 +36,11 @@ const LearningCenter = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO
+        title="Design & Digital Growth Learning Center | PassionWorld Designs"
+        description="Practical advice about graphic design, branding, website design, web development, digital marketing, and creative content for growing businesses."
+        canonical="/learning-center"
+      />
       <Header />
       <main id="main-content" className="flex-grow">
         <div className="container mx-auto px-4 py-8">
@@ -49,7 +58,7 @@ const LearningCenter = () => {
                 <Link to={`/learning-center/${article.id}`} key={article.id} className="block group">
                   <div className="border rounded-lg overflow-hidden shadow-lg h-full flex flex-col hover:shadow-xl transition-shadow duration-300">
                     {article.imageUrl && (
-                      <img src={article.imageUrl} alt={article.title} className="w-full h-48 object-cover" />
+                      <img src={article.imageUrl} alt={article.imageAlt || article.title} className="w-full h-48 object-cover" />
                     )}
                     <div className="p-6 flex-grow flex flex-col">
                       <div className="flex items-center text-sm text-muted-foreground mb-3">

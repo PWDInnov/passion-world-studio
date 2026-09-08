@@ -1,10 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db as firestore } from '../firebase';
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import SEO from "@/components/SEO";
 
 const NewsPage = () => {
     const [news, setNews] = useState([]);
@@ -25,6 +27,14 @@ const NewsPage = () => {
     }, []);
 
     return (
+        <div className="min-h-screen flex flex-col">
+            <SEO
+                title="News and Updates | PassionWorld Designs"
+                description="News, project updates, design insights, and announcements from PassionWorld Designs."
+                canonical="/news"
+            />
+            <Header />
+            <main id="main-content" className="flex-1">
         <section className="py-20">
             <div className="container mx-auto px-4">
                 <h2 className="text-3xl font-bold text-center mb-12">Latest News & Updates</h2>
@@ -67,6 +77,9 @@ const NewsPage = () => {
                 )}
             </div>
         </section>
+            </main>
+            <Footer />
+        </div>
     );
 };
 

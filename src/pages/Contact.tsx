@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -12,6 +11,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Skeleton } from '@/components/ui/skeleton';
 import emailjs from 'emailjs-com';
+import SEO from "@/components/SEO";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -97,6 +97,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEO
+        title="Contact PassionWorld Designs | Start Your Project"
+        description="Contact PassionWorld Designs for graphic design, branding, website design, web development, digital marketing, and creative content services."
+        canonical="/contact"
+      />
       <Header />
       <main className="flex-1">
         {/* Page Header */}
