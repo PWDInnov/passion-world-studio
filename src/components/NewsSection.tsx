@@ -1,13 +1,23 @@
-
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import useFirestore from "../hooks/use-firestore";
 import { Loader2, Newspaper } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const NewsSection = () => {
   const { docs: newsDocs, loading } = useFirestore("news");
+  const [selectedNews, setSelectedNews] = useState(null);
 
-  // Sort news by date in descending order and take the latest 3
-  const sortedNews = newsDocs.sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0)).slice(0, 3);
+  const sortedNews = [...newsDocs]
+    .sort((a, b) => (b.date?.seconds || 0) - (a.date?.seconds || 0))
+    .slice(0, 3);
 
   return (
     <section className="py-20">
@@ -43,6 +53,14 @@ const NewsSection = () => {
                   </p>
                   <h3 className="text-xl font-bold mb-2 flex-grow">{news.title}</h3>
                   <p className="text-muted-foreground line-clamp-3">{news.excerpt}</p>
+                  <Button
+                    variant="link"
+                    className="mt-4 h-auto self-start p-0 font-semibold"
+                    onClick={() => setSelectedNews(news)}
+                  >
+                    See more
+                    <span className="sr-only"> about {news.title}</span>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -54,6 +72,35 @@ const NewsSection = () => {
             </div>
         )}
       </div>
+
+      <Dialog open={Boolean(selectedNews)} onOpenChange={(open) => !open && setSelectedNews(null)}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto p-0">
+          {selectedNews && (
+            <>
+              {selectedNews.mediaUrl && (
+                <div className="aspect-video bg-muted">
+                  {selectedNews.mediaType === "image" ? (
+                    <img src={selectedNews.mediaUrl} alt={selectedNews.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <video src={selectedNews.mediaUrl} className="h-full w-full object-cover" playsInline controls />
+                  )}
+                </div>
+              )}
+              <DialogHeader className="space-y-3 p-6">
+                <p className="text-sm text-muted-foreground">
+                  {selectedNews.date?.seconds
+                    ? new Date(selectedNews.date.seconds * 1000).toLocaleDateString()
+                    : "Recent"}
+                </p>
+                <DialogTitle className="pr-8 text-2xl leading-tight">{selectedNews.title}</DialogTitle>
+                <DialogDescription className="whitespace-pre-wrap text-base leading-7">
+                  {selectedNews.content || selectedNews.excerpt}
+                </DialogDescription>
+              </DialogHeader>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
