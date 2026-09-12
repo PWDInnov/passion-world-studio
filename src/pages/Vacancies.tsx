@@ -119,7 +119,7 @@ const Vacancies = () => {
 
       setSubmitted(true);
     } catch {
-      setError(`We could not submit your application. Please email ${applicationEmail} instead.`);
+      setError("We couldn't complete the online form.");
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +153,7 @@ const Vacancies = () => {
             <p className="text-muted-foreground">Explore our current openings and tell us how your perspective can help PassionWorld Designs grow.</p>
           </div>
 
-          {error && <p role="alert" className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
+          {error && !selectedVacancy && <p role="alert" className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
           {loading ? (
             <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
           ) : vacancies.length === 0 ? (
@@ -254,7 +254,12 @@ const Vacancies = () => {
                   </p>
                 </div>
               )}
-              {error && <p role="alert" className="text-sm text-destructive">{error} Please email <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a> if needed.</p>}
+              {error && (
+                <p role="status" className="rounded-md border border-amber-300/60 bg-amber-50 p-3 text-sm text-foreground">
+                  {error} For faster review and response, please{" "}
+                  <a className="font-medium underline" href={`mailto:${applicationEmail}`}>send your CV via email to {applicationEmail}</a>.
+                </p>
+              )}
             </form>
           </DialogContent>
         </Dialog>
