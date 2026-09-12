@@ -4,13 +4,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Quote, Star, Loader2 } from "lucide-react";
 import useFirestore from "@/hooks/use-firestore";
-import './Testimonials.css'; // Import the new CSS file
+import './Testimonials.css';
+import SEO from "@/components/SEO";
 
 const Testimonials = () => {
   const { docs: testimonials, loading } = useFirestore('testimonials');
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Client Reviews for Design, Branding & Web Services | PassionWorld Designs"
+        description="Read client feedback about PassionWorld Designs graphic design, branding, website development, and digital services."
+        canonical="/testimonials"
+      />
       <Header />
       
       <main className="flex-1">

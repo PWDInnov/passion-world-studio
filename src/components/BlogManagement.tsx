@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { Button } from "@/components/ui/button";
@@ -8,207 +7,256 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PlusCircle, Edit, Trash, Loader2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash, Loader2, FileText } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import RichTextEditor from './RichTextEditor';
+import { seoArticleDrafts, seoTopicIdeas } from '@/data/seoArticleDrafts';
+import type { BlogPost } from '@/types';
+
+type ManagedBlogPost = BlogPost & { id: string; publishedAt?: string | null };
+
+type BlogFormData = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  readTime: string;
+  imageUrl: string;
+  imageAlt: string;
+  tags: string;
+  status: 'draft' | 'review' | 'published';
+  metaTitle: string;
+  metaDescription: string;
+};
+
+const emptyFormData: BlogFormData = {
+  title: '',
+  slug: '',
+  excerpt: '',
+  content: '',
+  author: 'PassionWorld Designs',
+  date: new Date().toISOString().split('T')[0],
+  readTime: '5 min read',
+  imageUrl: '',
+  imageAlt: '',
+  tags: '',
+  status: 'draft',
+  metaTitle: '',
+  metaDescription: '',
+};
+
+const statusLabel = (status?: string) => {
+  if (status === 'review') return 'In review';
+  if (status === 'published' || !status) return 'Published';
+  return 'Draft';
+};
 
 const BlogManagement = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<ManagedBlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentPost, setCurrentPost] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    excerpt: '',
-    content: '',
-    author: '',
-    date: new Date().toISOString().split('T')[0],
-    readTime: '',
-    imageUrl: '',
-    tags: '',
-  });
-
-  const seedBlogData = async () => {
-    const postsCollection = collection(db, 'blog');
-    const postsSnapshot = await getDocs(postsCollection);
-    if (postsSnapshot.empty) {
-        const dummyPosts = [
-            {
-              title: "10 Web Design Trends for 2025",
-              excerpt: "Discover the latest design trends that will shape the digital landscape in the coming year.",
-              content: "<p>This is the full content for the web design trends post. It can include various HTML elements like <strong>bold text</strong>, <em>italics</em>, and <a href='#'>links</a>.</p>",
-              imageUrl: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=800&h=500&fit=crop",
-              author: "Sarah Johnson",
-              date: new Date("2025-01-15").toISOString(),
-              readTime: "5 min read",
-              tags: ["Design", "Trends", "Web"],
-            },
-            {
-              title: "The Importance of Brand Identity",
-              excerpt: "Learn why a strong brand identity is crucial for business success and how to build one.",
-              content: "<p>A strong brand identity is more than just a logo. This post explores the different components of a successful brand strategy.</p>",
-              imageUrl: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=500&fit=crop",
-              author: "Michael Chen",
-              date: new Date("2025-01-12").toISOString(),
-              readTime: "7 min read",
-              tags: ["Branding", "Business", "Strategy"],
-            },
-            {
-              title: "Responsive Design Best Practices",
-              excerpt: "Essential tips and techniques for creating websites that look great on all devices.",
-              content: "<p>With more users accessing the web on mobile devices than ever before, responsive design is no longer optional. Here are our top tips.</p>",
-              imageUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&h=500&fit=crop",
-              author: "Emily Rodriguez",
-              date: new Date("2025-01-10").toISOString(),
-              readTime: "6 min read",
-              tags: ["Development", "Mobile", "UX"],
-            },
-        ];
-      for (const post of dummyPosts) {
-        await addDoc(postsCollection, post);
-      }
-      toast({ title: "Dummy blog posts have been added." });
-    }
-  };
-
-  useEffect(() => {
-    seedBlogData().then(() => fetchPosts());
-  }, []);
+  const [currentPost, setCurrentPost] = useState<ManagedBlogPost | null>(null);
+  const [formData, setFormData] = useState<BlogFormData>(emptyFormData);
 
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const postsCollection = collection(db, 'blog');
-      const postsSnapshot = await getDocs(postsCollection);
-      const postsList = postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const postsSnapshot = await getDocs(collection(db, 'blog'));
+      const postsList = postsSnapshot.docs
+        .map((postDoc) => ({ id: postDoc.id, ...postDoc.data() } as ManagedBlogPost))
+        .sort((first, second) => new Date(second.date).getTime() - new Date(first.date).getTime());
       setPosts(postsList);
-    } catch (error) {
-      toast({ title: "Error fetching posts", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Error fetching posts", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  
-  const handleContentChange = (value: string) => {
-    setFormData(prev => ({ ...prev, content: value }));
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const loadSeoDrafts = async () => {
+    try {
+      const postsSnapshot = await getDocs(collection(db, 'blog'));
+      const existingTitles = new Set(postsSnapshot.docs.map((postDoc) => postDoc.data().title));
+      const draftsToAdd = seoArticleDrafts.filter((draft) => !existingTitles.has(draft.title));
+
+      for (const draft of draftsToAdd) {
+        await addDoc(collection(db, 'blog'), draft);
+      }
+
+      toast({
+        title: draftsToAdd.length ? `${draftsToAdd.length} SEO drafts added for review.` : "SEO drafts are already loaded.",
+      });
+      fetchPosts();
+    } catch (error: unknown) {
+      toast({ title: "Could not load SEO drafts", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
+    }
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    const postData = { 
-      ...formData, 
-      tags: formData.tags.split(',').map(tag => tag.trim()),
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setFormData((previous) => ({ ...previous, [name]: value }));
+  };
+
+  const handleContentChange = (value: string) => {
+    setFormData((previous) => ({ ...previous, content: value }));
+  };
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const now = new Date().toISOString();
+    const postData = {
+      ...formData,
+      tags: formData.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
       date: new Date(formData.date).toISOString(),
-     };
+      publishedAt: formData.status === 'published' ? (currentPost?.publishedAt || now) : null,
+      updatedAt: now,
+    };
 
     try {
-      if (currentPost) { // Update
-        const postDoc = doc(db, 'blog', currentPost.id);
-        await updateDoc(postDoc, postData);
+      if (currentPost) {
+        await updateDoc(doc(db, 'blog', currentPost.id), postData);
         toast({ title: "Post updated successfully!" });
-      } else { // Create
+      } else {
         await addDoc(collection(db, 'blog'), postData);
-        toast({ title: "Post created successfully!" });
+        toast({ title: "Post saved as a draft." });
       }
-      fetchPosts();
+      await fetchPosts();
       setIsDialogOpen(false);
       setCurrentPost(null);
-    } catch (error) {
-      toast({ title: "Operation failed", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+      toast({ title: "Operation failed", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
     }
   };
 
   const openDialogForCreate = () => {
     setCurrentPost(null);
-    setFormData({ 
-      title: '', 
-      excerpt: '', 
-      content: '', 
-      author: 'Passion World', 
-      date: new Date().toISOString().split('T')[0], 
-      readTime: '5 min read', 
-      imageUrl: '', 
-      tags: '' 
-    });
+    setFormData({ ...emptyFormData, date: new Date().toISOString().split('T')[0] });
     setIsDialogOpen(true);
   };
 
-  const openDialogForUpdate = (post) => {
+  const openDialogForUpdate = (post: ManagedBlogPost) => {
     setCurrentPost(post);
-    setFormData({ 
-        ...post, 
-        tags: Array.isArray(post.tags) ? post.tags.join(', ') : '',
-        date: post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    setFormData({
+      ...emptyFormData,
+      ...post,
+      tags: Array.isArray(post.tags) ? post.tags.join(', ') : '',
+      date: post.date ? new Date(post.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      status: post.status || 'published',
     });
     setIsDialogOpen(true);
   };
 
-  const handleDeletePost = async (id) => {
+  const handleDeletePost = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this post?")) {
       try {
         await deleteDoc(doc(db, 'blog', id));
         toast({ title: "Post deleted successfully!" });
         fetchPosts();
-      } catch (error) {
-        toast({ title: "Deletion failed", description: error.message, variant: "destructive" });
+      } catch (error: unknown) {
+        toast({ title: "Deletion failed", description: error instanceof Error ? error.message : "Please try again.", variant: "destructive" });
       }
     }
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Blog Posts</CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openDialogForCreate}>
-              <PlusCircle className="mr-2" size={18} />
-              Add New Post
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>{currentPost ? 'Edit Post' : 'Create New Post'}</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[70vh] w-full">
-                 <form onSubmit={handleFormSubmit} className="space-y-4 py-4 pr-6">
-                    <Input name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
-                    <Textarea name="excerpt" placeholder="Excerpt" value={formData.excerpt} onChange={handleInputChange} required />
-                    <RichTextEditor value={formData.content} onChange={handleContentChange} />
-                    <Input name="author" placeholder="Author" value={formData.author} onChange={handleInputChange} required />
-                    <Input name="readTime" placeholder="Read Time (e.g., 5 min read)" value={formData.readTime} onChange={handleInputChange} required />
-                    <Input name="imageUrl" placeholder="Image URL" value={formData.imageUrl} onChange={handleInputChange} />
-                    <Input name="tags" placeholder="Tags (comma-separated)" value={formData.tags} onChange={handleInputChange} />
-                    <Input name="date" type="date" value={formData.date} onChange={handleInputChange} required />
-                    <Button type="submit">{currentPost ? 'Update' : 'Create'}</Button>
-                </form>
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
-        ) : (
-          <div className="space-y-4">
-            {posts.map(post => (
-              <div key={post.id} className="flex items-center justify-between p-2 rounded-md border">
-                <span>{post.title}</span>
-                <div className="space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => openDialogForUpdate(post)}><Edit size={16} /></Button>
-                  <Button variant="destructive" size="sm" onClick={() => handleDeletePost(post.id)}><Trash size={16} /></Button>
-                </div>
+    <div className="space-y-6">
+      <Card className="border-primary/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><FileText className="text-primary" size={20} /> SEO Content Planner</CardTitle>
+          <p className="text-sm text-muted-foreground">Use searched service topics to prepare useful articles. New drafts stay private until their status is changed to Published.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 md:grid-cols-2">
+            {seoTopicIdeas.map((topic) => (
+              <div key={topic.title} className="rounded-lg border p-4">
+                <p className="font-semibold">{topic.title}</p>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-primary">{topic.service}</p>
+                <p className="mt-2 text-sm text-muted-foreground">{topic.angle}</p>
               </div>
             ))}
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <Button type="button" variant="outline" onClick={loadSeoDrafts}>
+            <FileText className="mr-2" size={16} />
+            Add prepared SEO drafts for review
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Blog Posts</CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">Review titles, SEO descriptions, content, and status before publishing.</p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openDialogForCreate}>
+                <PlusCircle className="mr-2" size={18} />
+                Add New Post
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>{currentPost ? 'Edit Post' : 'Create New Draft'}</DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="h-[70vh] w-full">
+                <form onSubmit={handleFormSubmit} className="space-y-4 py-4 pr-6">
+                  <Input name="title" placeholder="Article title" value={formData.title} onChange={handleInputChange} required />
+                  <Input name="slug" placeholder="URL slug, e.g. website-design-cost" value={formData.slug} onChange={handleInputChange} />
+                  <Textarea name="excerpt" placeholder="Short article summary" value={formData.excerpt} onChange={handleInputChange} required />
+                  <Input name="metaTitle" placeholder="SEO title" value={formData.metaTitle} onChange={handleInputChange} />
+                  <Textarea name="metaDescription" placeholder="SEO description" value={formData.metaDescription} onChange={handleInputChange} />
+                  <RichTextEditor value={formData.content} onChange={handleContentChange} />
+                  <Input name="author" placeholder="Author" value={formData.author} onChange={handleInputChange} required />
+                  <Input name="readTime" placeholder="Read time, e.g. 5 min read" value={formData.readTime} onChange={handleInputChange} required />
+                  <Input name="imageUrl" placeholder="Image URL" value={formData.imageUrl} onChange={handleInputChange} />
+                  <Input name="imageAlt" placeholder="Image alt text" value={formData.imageAlt} onChange={handleInputChange} />
+                  <Input name="tags" placeholder="Tags, comma-separated" value={formData.tags} onChange={handleInputChange} />
+                  <Input name="date" type="date" value={formData.date} onChange={handleInputChange} required />
+                  <label className="space-y-2 text-sm font-medium">
+                    <span>Publishing status</span>
+                    <select name="status" value={formData.status} onChange={handleInputChange} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      <option value="draft">Draft</option>
+                      <option value="review">In review</option>
+                      <option value="published">Published</option>
+                    </select>
+                  </label>
+                  <Button type="submit">{currentPost ? 'Save changes' : 'Save draft'}</Button>
+                </form>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
+          ) : posts.length === 0 ? (
+            <p className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">No posts yet. Add a post or load the prepared SEO drafts above.</p>
+          ) : (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <div key={post.id} className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="font-medium">{post.title}</p>
+                    <p className="text-xs text-muted-foreground">{statusLabel(post.status)} · {post.metaDescription || post.excerpt}</p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <Button variant="outline" size="sm" onClick={() => openDialogForUpdate(post)}><Edit size={16} /></Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeletePost(post.id)}><Trash size={16} /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

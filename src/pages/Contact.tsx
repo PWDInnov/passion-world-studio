@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -11,6 +10,8 @@ import { Loader2, Mail, Phone, MapPin } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Skeleton } from '@/components/ui/skeleton';
+import emailjs from 'emailjs-com';
+import SEO from "@/components/SEO";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -70,13 +71,19 @@ const Contact = () => {
     setSubmitMessage('');
 
     try {
+      // Send email using EmailJS
+      await emailjs.send(
+        'service_431mism',
+        'template_grx5bzd',
+        formData,
+        '4VXVtAmH-4z0TKLII'
+      );
+      
       // Save form data to Firestore
       await addDoc(collection(db, 'messages'), {
         ...formData,
         timestamp: serverTimestamp()
       });
-
-      // TODO: Implement email sending functionality here
 
       setSubmitMessage('Your message has been sent successfully!');
       setFormData({ name: '', email: '', message: '' });
@@ -90,6 +97,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEO
+        title="Contact PassionWorld Designs | Start Your Project"
+        description="Contact PassionWorld Designs for graphic design, branding, website design, web development, digital marketing, and creative content services."
+        canonical="/contact"
+      />
       <Header />
       <main className="flex-1">
         {/* Page Header */}

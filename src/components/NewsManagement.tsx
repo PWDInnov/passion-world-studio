@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 import { db as firestore } from '../firebase';
@@ -14,7 +13,7 @@ const NewsManagement = () => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [form, setForm] = useState({ title: '', excerpt: '', mediaUrl: '', mediaType: 'image' });
+    const [form, setForm] = useState({ title: '', excerpt: '', content: '', mediaUrl: '', mediaType: 'image' });
     const [editingId, setEditingId] = useState(null);
 
     const newsCollection = collection(firestore, 'news');
@@ -63,6 +62,7 @@ const NewsManagement = () => {
         setForm({
             title: item.title || '',
             excerpt: item.excerpt || '',
+            content: item.content || '',
             mediaUrl: item.mediaUrl || '',
             mediaType: item.mediaType || 'image',
         });
@@ -80,7 +80,7 @@ const NewsManagement = () => {
     const handleCancel = () => {
         setIsFormOpen(false);
         setEditingId(null);
-        setForm({ title: '', excerpt: '', mediaUrl: '', mediaType: 'image' });
+        setForm({ title: '', excerpt: '', content: '', mediaUrl: '', mediaType: 'image' });
     };
 
     if (loading) {
@@ -94,7 +94,8 @@ const NewsManagement = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input name="title" value={form.title} onChange={handleInputChange} placeholder="Title" required />
                     <Textarea name="excerpt" value={form.excerpt} onChange={handleInputChange} placeholder="Excerpt (short summary)" required />
-                    
+                    <Textarea name="content" value={form.content} onChange={handleInputChange} placeholder="Full news content (uses the excerpt if blank)" />
+
                     <div className="p-4 border rounded-lg space-y-4">
                         <Label>Media (Optional)</Label>
                         <Input name="mediaUrl" value={form.mediaUrl} onChange={handleInputChange} placeholder="Image or Video URL" />

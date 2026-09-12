@@ -9,7 +9,8 @@ import Marquee from "@/components/Marquee";
 import useFirestore from '@/hooks/use-firestore';
 import { useInView } from 'react-intersection-observer';
 import { useState } from "react";
-import NewsSection from "@/components/NewsSection"; // Import the new component
+import NewsSection from "@/components/NewsSection";
+import SEO from "@/components/SEO";
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -58,6 +59,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title="Graphic Design, Website Design & Branding Services | PassionWorld Designs"
+        description="PassionWorld Designs provides graphic design, logo design, branding, website design, web development, digital marketing, and creative content services."
+        canonical="/"
+      />
       <Header />
       
       <main id="main-content" className="flex-1">
@@ -88,6 +94,7 @@ const Home = () => {
             ) : (
               <AnimatedSection effect="fade-up">
                 <div className="max-w-4xl mx-auto text-center">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.35em] text-primary-foreground/90">PassionWorld Designs</p>
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-primary shadow-2xl mb-8 animate-float-slow animate-gold-pulse">
                     <span className="font-bold text-4xl text-primary-foreground">
                         <span style={{ animation: 'anim_P 3s infinite', opacity: 0 }}>P</span>
