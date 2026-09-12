@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const applicationEmail = "info.passionworlddesigns@gmail.com";
+const applicationEmail = "pwdinnovate@hotmail.com";
 const maxCvSize = 5 * 1024 * 1024;
 const cvRetentionDays = 30;
 
@@ -239,7 +239,15 @@ const Vacancies = () => {
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
                 {submitting ? "Submitting application..." : submitted ? "Application submitted" : "Submit application"}
               </Button>
-              {submitted && <p role="status" className="text-sm text-green-600">Thanks for applying. Our hiring team will review your application and get back to you.</p>}
+              {submitted && (
+                <div role="status" className="space-y-1 text-sm text-green-600">
+                  <p>Your CV has been submitted successfully.</p>
+                  <p>
+                    For faster review and response, send your CV via email to{" "}
+                    <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a>.
+                  </p>
+                </div>
+              )}
               {error && <p role="alert" className="text-sm text-destructive">{error} Please email <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a> if needed.</p>}
             </form>
           </DialogContent>
