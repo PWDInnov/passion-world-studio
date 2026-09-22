@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SEO from "@/components/SEO";
 
-const applicationEmail = "info.passionworlddesigns@gmail.com";
+const applicationEmail = "pwdinnovate@hotmail.com";
 const maxCvSize = 5 * 1024 * 1024;
 const cvRetentionDays = 30;
 
@@ -119,7 +119,7 @@ const Vacancies = () => {
 
       setSubmitted(true);
     } catch {
-      setError(`We could not submit your application. Please email ${applicationEmail} instead.`);
+      setError("We couldn't complete the online form.");
     } finally {
       setSubmitting(false);
     }
@@ -153,7 +153,7 @@ const Vacancies = () => {
             <p className="text-muted-foreground">Explore our current openings and tell us how your perspective can help PassionWorld Designs grow.</p>
           </div>
 
-          {error && <p role="alert" className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
+          {error && !selectedVacancy && <p role="alert" className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">{error}</p>}
           {loading ? (
             <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
           ) : vacancies.length === 0 ? (
@@ -245,8 +245,21 @@ const Vacancies = () => {
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
                 {submitting ? "Submitting application..." : submitted ? "Application submitted" : "Submit application"}
               </Button>
-              {submitted && <p role="status" className="text-sm text-green-600">Thanks for applying. Our hiring team will review your application and get back to you.</p>}
-              {error && <p role="alert" className="text-sm text-destructive">{error} Please email <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a> if needed.</p>}
+              {submitted && (
+                <div role="status" className="space-y-1 text-sm text-green-600">
+                  <p>Your CV has been submitted successfully.</p>
+                  <p>
+                    For faster review and response, send your CV via email to{" "}
+                    <a className="underline" href={`mailto:${applicationEmail}`}>{applicationEmail}</a>.
+                  </p>
+                </div>
+              )}
+              {error && (
+                <p role="status" className="rounded-md border border-amber-300/60 bg-amber-50 p-3 text-sm text-foreground">
+                  {error} For faster review and response, please{" "}
+                  <a className="font-medium underline" href={`mailto:${applicationEmail}`}>send your CV via email to {applicationEmail}</a>.
+                </p>
+              )}
             </form>
           </DialogContent>
         </Dialog>

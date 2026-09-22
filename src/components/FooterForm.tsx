@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -8,6 +7,8 @@ import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Textarea } from './ui/textarea';
 import { Loader2 } from 'lucide-react';
+
+const contactEmail = "pwdinnovate@hotmail.com";
 
 const FooterForm = ({ onSave, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -22,11 +23,11 @@ const FooterForm = ({ onSave, onCancel }) => {
     const fetchFooterData = async () => {
       const docSnap = await getDoc(footerDocRef);
       if (docSnap.exists()) {
-        setFormData(docSnap.data());
+        setFormData({ ...docSnap.data(), email: contactEmail });
       } else {
         // If the document doesn't exist, initialize with current static values
         setFormData({
-            email: "info.passionworlddesigns@gmail.com",
+            email: contactEmail,
             phone: "+1 (555) 123-4567",
             address: "123 Design Street, Creative City, CC 12345",
         });
