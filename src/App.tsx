@@ -16,7 +16,6 @@ import NotFound from "./pages/NotFound";
 import LoadingScreen from "@/components/LoadingScreen";
 import PassionChatbot from "@/components/PassionChatbot";
 import ProjectPlannerPage from "./pages/tools/ProjectPlannerPage";
-import StartProject from "./pages/StartProject";
 import NewsPage from "./pages/News";
 
 const queryClient = new QueryClient();
@@ -52,7 +51,6 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/tools/project-planner" element={<ProjectPlannerPage />} />
-              <Route path="/start-project" element={<StartProject />} />
               <Route path="/news" element={<NewsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
