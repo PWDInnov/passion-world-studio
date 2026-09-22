@@ -91,7 +91,10 @@ const Services = () => {
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl font-bold text-white mb-4 drop-shadow-md">Ready to start a project?</h2>
                 <p className="text-white max-w-2xl mx-auto mb-8 font-medium drop-shadow-sm">Let&apos;s collaborate to create something amazing. We&apos;re here to help you achieve your digital goals.</p>
-                <Link to="/contact"><Button variant="secondary" size="lg" className="shadow-lg">Get in Touch</Button></Link>
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
+                  <Link to="/start-project"><Button variant="secondary" size="lg" className="shadow-lg">Start your project brief</Button></Link>
+                  <Link to="/contact"><Button variant="outline" size="lg" className="border-white bg-transparent text-white hover:bg-white hover:text-primary">Get in Touch</Button></Link>
+                </div>
             </div>
         </section>
       </main>
