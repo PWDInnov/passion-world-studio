@@ -7,6 +7,8 @@ import { toast } from "@/hooks/use-toast";
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
+const contactEmail = "pwdinnovate@hotmail.com";
+
 const Footer = () => {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [footerData, setFooterData] = useState(null);
@@ -19,11 +21,11 @@ const Footer = () => {
         const docRef = doc(db, 'siteContent', 'footer');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setFooterData(docSnap.data());
+          setFooterData({ ...docSnap.data(), email: contactEmail });
         } else {
           // Fallback to default data if nothing is in the database
           setFooterData({
-            email: "info@passionworld.com",
+            email: contactEmail,
             phone: "+1 (555) 123-4567",
             address: "123 Design Street, Creative City, CC 12345",
             socialLinks: {
@@ -38,7 +40,7 @@ const Footer = () => {
         console.error("Error fetching footer data:", error);
         // Set fallback data on error as well
         setFooterData({
-          email: "info@passionworld.com",
+          email: contactEmail,
           phone: "+1 (555) 123-4567",
           address: "123 Design Street, Creative City, CC 12345",
           socialLinks: {
@@ -106,7 +108,7 @@ const Footer = () => {
               <li><Link to="/portfolio" className="text-gray-300 hover:text-primary text-sm">Portfolio</Link></li>
               <li><Link to="/testimonials" className="text-gray-300 hover:text-primary text-sm">Testimonials</Link></li>
               <li><Link to="/vacancies" className="text-gray-300 hover:text-primary text-sm">Vacancies</Link></li>
-              <li><Link to="/learning-center" className="text-gray-300 hover:text-primary text-sm">Blog</Link></li>
+              <li><Link to="/blog" className="text-gray-300 hover:text-primary text-sm">Blog</Link></li>
               <li><Link to="/contact" className="text-gray-300 hover:text-primary text-sm">Contact Us</Link></li>
             </ul>
           </div>
