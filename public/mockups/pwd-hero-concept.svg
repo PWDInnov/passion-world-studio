@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C0C0F"/>
+      <stop offset="0.55" stop-color="#161416"/>
+      <stop offset="1" stop-color="#080809"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="990" y1="90" x2="1470" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4D88E"/>
+      <stop offset="0.43" stop-color="#C99835"/>
+      <stop offset="1" stop-color="#76511B"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="990" y1="180" x2="1450" y2="850" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#24201D"/>
+      <stop offset="1" stop-color="#0F0E10"/>
+    </linearGradient>
+    <filter id="shadow" x="890" y="80" width="610" height="850" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="24" stdDeviation="30" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+    <filter id="glow" x="-100" y="-100" width="1800" height="1200" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="80"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <circle cx="1260" cy="360" r="280" fill="#AD7C29" opacity="0.14" filter="url(#glow)"/>
+  <path d="M0 870C280 760 395 930 670 820C890 732 1010 635 1220 728C1385 800 1460 913 1600 868V1000H0V870Z" fill="#0A0A0B"/>
+  <path d="M0 865C294 754 405 919 675 813C905 723 1014 630 1225 724C1384 795 1472 907 1600 862" stroke="#C99C45" stroke-opacity="0.24" stroke-width="2"/>
+  <g opacity="0.5">
+    <circle cx="76" cy="116" r="2" fill="#D5AE5B"/><circle cx="218" cy="176" r="1.5" fill="#D5AE5B"/><circle cx="754" cy="102" r="2" fill="#D5AE5B"/><circle cx="822" cy="290" r="1.5" fill="#D5AE5B"/>
+  </g>
+  <rect x="86" y="65" width="54" height="54" rx="16" fill="url(#gold)"/>
+  <path d="M101 102V82L115 96L129 82V102" stroke="#17130D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="158" y="101" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="5">PASSION WORLD</text>
+  <text x="1020" y="99" fill="#ADA59B" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="3">CONCEPT 01 / HOMEPAGE HERO</text>
+  <g fill="#D9D1C5" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="1">
+    <text x="846" y="96">SERVICES</text><text x="960" y="96">WORK</text><text x="1040" y="96">ABOUT</text><text x="1125" y="96">CONTACT</text>
+  </g>
+  <rect x="1344" y="64" width="170" height="58" rx="29" fill="#D7A943"/>
+  <text x="1380" y="99" fill="#17120A" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="1">START A PROJECT</text>
+  <text x="100" y="255" fill="#CDA34E" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="4">CREATIVE DIGITAL STUDIO</text>
+  <text x="100" y="365" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">Innovative,</text>
+  <text x="100" y="450" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">affordable,</text>
+  <text x="100" y="535" fill="url(#gold)" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="700" letter-spacing="-3">unforgettable.</text>
+  <text x="103" y="600" fill="#A9A197" font-family="Arial, Helvetica, sans-serif" font-size="19">We turn bold ideas into brands and digital experiences</text>
+  <text x="103" y="630" fill="#A9A197" font-family="Arial, Helvetica, sans-serif" font-size="19">people remember.</text>
+  <rect x="100" y="700" width="185" height="58" rx="29" fill="#D7A943"/>
+  <text x="138" y="735" fill="#17120A" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">VIEW OUR WORK</text>
+  <rect x="305" y="700" width="190" height="58" rx="29" fill="none" stroke="#77653F"/>
+  <text x="344" y="735" fill="#F0E9DB" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700">OUR SERVICES</text>
+  <g filter="url(#shadow)">
+    <rect x="940" y="175" width="475" height="645" rx="22" fill="url(#panel)" stroke="#60481D" stroke-width="1.5"/>
+    <rect x="969" y="205" width="417" height="278" rx="14" fill="#3B332C"/>
+    <path d="M970 397C1073 291 1116 375 1190 309C1270 237 1312 301 1386 229V483H970V397Z" fill="#B58B41" opacity="0.7"/>
+    <path d="M970 440C1080 368 1132 429 1206 368C1281 307 1321 365 1386 317V483H970V440Z" fill="#E3C978" opacity="0.45"/>
+    <circle cx="1165" cy="337" r="68" fill="#111012" opacity="0.72"/>
+    <path d="M1138 361V313L1165 340L1192 313V361" stroke="#E8C767" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="1000" y="527" fill="#D7A943" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="3">FEATURED PROJECT</text>
+    <text x="1000" y="573" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">A sharper identity</text>
+    <text x="1000" y="610" fill="#AAA097" font-family="Arial, Helvetica, sans-serif" font-size="16">Brand strategy / Digital experience</text>
+    <line x1="1000" y1="670" x2="1355" y2="670" stroke="#4A4033"/>
+    <text x="1000" y="715" fill="#D9D1C5" font-family="Arial, Helvetica, sans-serif" font-size="15">EXPLORE CASE STUDY</text>
+    <path d="M1315 707L1355 707M1355 707L1338 690M1355 707L1338 724" stroke="#D7A943" stroke-width="2"/>
+  </g>
+  <text x="100" y="925" fill="#776F64" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="3">SCROLL TO EXPLORE</text>
+  <path d="M265 920V945M265 945L256 936M265 945L274 936" stroke="#CDA34E" stroke-width="2"/>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse"><stop stop-color="#101012"/><stop offset="1" stop-color="#1A1715"/></linearGradient>
+    <linearGradient id="one" x1="90" y1="300" x2="770" y2="780" gradientUnits="userSpaceOnUse"><stop stop-color="#DDBE70"/><stop offset="1" stop-color="#7B4E28"/></linearGradient>
+    <linearGradient id="two" x1="870" y1="300" x2="1500" y2="780" gradientUnits="userSpaceOnUse"><stop stop-color="#5C7A7A"/><stop offset="1" stop-color="#152628"/></linearGradient>
+    <linearGradient id="three" x1="90" y1="800" x2="770" y2="960" gradientUnits="userSpaceOnUse"><stop stop-color="#D16A40"/><stop offset="1" stop-color="#531C1A"/></linearGradient>
+    <linearGradient id="four" x1="870" y1="800" x2="1500" y2="960" gradientUnits="userSpaceOnUse"><stop stop-color="#BC9B53"/><stop offset="1" stop-color="#39301D"/></linearGradient>
+    <filter id="shadow" x="50" y="250" width="1500" height="740" filterUnits="userSpaceOnUse"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000" flood-opacity="0.35"/></filter>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <path d="M0 174H1600" stroke="#3D3427"/>
+  <rect x="80" y="55" width="54" height="54" rx="16" fill="#D7A943"/>
+  <path d="M95 92V72L109 86L123 72V92" stroke="#17130D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="153" y="91" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="5">PASSION WORLD</text>
+  <text x="80" y="255" fill="#CDA34E" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="4">SELECTED WORK / 2024—25</text>
+  <text x="80" y="340" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="-3">Work that makes</text>
+  <text x="80" y="420" fill="#D7A943" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="-3">people look twice.</text>
+  <text x="1250" y="307" fill="#A9A197" font-family="Arial, Helvetica, sans-serif" font-size="15">BRAND / WEB / DIGITAL</text>
+  <text x="1250" y="350" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">04</text>
+  <g filter="url(#shadow)">
+    <rect x="80" y="495" width="690" height="280" rx="16" fill="url(#one)"/>
+    <circle cx="265" cy="633" r="118" fill="#20191A" opacity="0.9"/>
+    <circle cx="265" cy="633" r="74" fill="#D7A943"/>
+    <path d="M222 676V590L265 633L308 590V676" stroke="#20191A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="470" y="592" fill="#231B14" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">01 / BRAND IDENTITY</text>
+    <text x="470" y="648" fill="#231B14" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">Made to be remembered</text>
+    <text x="470" y="693" fill="#4F3820" font-family="Arial, Helvetica, sans-serif" font-size="16">Strategy, identity, and a sharper point of view.</text>
+    <rect x="870" y="495" width="650" height="280" rx="16" fill="url(#two)"/>
+    <rect x="927" y="544" width="260" height="180" rx="10" fill="#E4DDCD"/>
+    <rect x="950" y="567" width="214" height="13" rx="6" fill="#BF9B4B"/>
+    <rect x="950" y="602" width="150" height="8" rx="4" fill="#A6AAA2"/>
+    <rect x="950" y="620" width="186" height="8" rx="4" fill="#A6AAA2"/>
+    <rect x="950" y="658" width="84" height="34" rx="17" fill="#202729"/>
+    <text x="1235" y="592" fill="#E3C978" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="3">02 / WEB DESIGN</text>
+    <text x="1235" y="648" fill="#F5F1E8" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="700">Digital, but human</text>
+    <text x="1235" y="693" fill="#B1B5AD" font-family="Arial, Helvetica, sans-serif" font-size="16">Websites built for connection and growth.</text>
+    <rect x="80" y="812" width="690" height="132" rx="16" fill="url(#three)"/>
+    <text x="112" y="858" fill="#F6D3A3" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="3">03 / DIGITAL CAMPAIGN</text>
+    <text x="112" y="905" fill="#FFF4E7" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700">Make noise. Keep meaning.</text>
+    <rect x="870" y="812" width="650" height="132" rx="16" fill="url(#four)"/>
+    <text x="902" y="858" fill="#2B2415" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="3">04 / PACKAGING</text>
+    <text x="902" y="905" fill="#211B13" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="700">Details people can feel.</text>
+  </g>
+  <text x="80" y="980" fill="#776F64" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="3">HOVER A PROJECT TO DISCOVER THE STORY</text>
+</svg>

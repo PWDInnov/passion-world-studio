@@ -1,4 +1,3 @@
-
 export interface Service {
   id: string;
   icon: string;
@@ -16,22 +15,32 @@ export interface PortfolioItem {
   tags: string[];
 }
 
+export type BlogPostStatus = "draft" | "review" | "published";
+
 export interface BlogPost {
   id: string;
   imageUrl: string;
+  imageAlt?: string;
   title: string;
+  slug?: string;
   date: string;
   readTime: string;
   excerpt: string;
+  content?: string;
   tags: string[];
   author: string;
+  status?: BlogPostStatus;
+  metaTitle?: string;
+  metaDescription?: string;
+  publishedAt?: string | null;
+  updatedAt?: string;
 }
 
 export interface Testimonial {
   id: string;
   name: string;
   role: string;
-  image: string;
+  imageUrl: string;
   quote: string;
   rating: number;
 }

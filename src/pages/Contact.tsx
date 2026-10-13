@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -9,8 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, Phone, MapPin } from "lucide-react";
 import Header from "@/components/Header";
+import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Skeleton } from '@/components/ui/skeleton';
+
+const contactEmail = "pwdinnovate@hotmail.com";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -34,11 +36,14 @@ const Contact = () => {
         const docRef = doc(db, 'siteContent', 'footer');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setContactInfo(docSnap.data() as { email: string; phone: string; address: string; });
+          setContactInfo({
+            ...(docSnap.data() as { email: string; phone: string; address: string; }),
+            email: contactEmail,
+          });
         } else {
           // Set default values if document doesn't exist
           setContactInfo({
-            email: 'info@passionworld.com',
+            email: contactEmail,
             phone: '+1 (555) 123-4567',
             address: '123 Design Street, Creative City, CC 12345'
           });
@@ -47,7 +52,7 @@ const Contact = () => {
         console.error("Error fetching contact info: ", error);
         // Set default values on error
         setContactInfo({
-            email: 'info@passionworld.com',
+            email: contactEmail,
             phone: '+1 (555) 123-4567',
             address: '123 Design Street, Creative City, CC 12345'
           });
@@ -90,6 +95,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEO
+        title="Contact PassionWorld Designs | Graphic Design & App Development"
+        description="Contact PassionWorld Designs to discuss graphic design, branding, mobile app development, websites, or another digital project."
+        canonical="/contact"
+      />
       <Header />
       <main className="flex-1">
         {/* Page Header */}
