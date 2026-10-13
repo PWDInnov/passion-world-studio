@@ -37,8 +37,8 @@ const Services = () => {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <SEO
-        title="Graphic Design, Website Design & Digital Services | PassionWorld Designs"
-        description="Explore graphic design, logo design, branding, website design, web development, digital marketing, software, IT, creative content, and printing services."
+        title="Graphic Design & Mobile App Development Services | PassionWorld Designs"
+        description="Explore graphic design, logo and brand identity, mobile app development, websites, custom software, digital marketing, and printing services."
         canonical="/services"
         structuredData={serviceSchema}
       />
@@ -52,9 +52,9 @@ const Services = () => {
             <div className="absolute inset-0 bg-black/50"></div>
           </div>
           <div className="container mx-auto px-4 relative z-10">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up text-white">Our Services</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up text-white">Graphic Design, App Development &amp; Digital Services</h1>
             <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto animate-fade-in-up">
-              We provide a comprehensive suite of digital services designed to elevate your brand and engage your audience.
+              Explore logo and brand identity design, mobile app development, websites, custom software, and creative services for your business.
             </p>
           </div>
         </section>

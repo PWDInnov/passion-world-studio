@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { serviceCatalog } from "@/data/serviceCatalog";
 
 const ServiceCatalog = () => {
@@ -40,6 +41,16 @@ const ServiceCatalog = () => {
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   {category.description}
                 </p>
+                {category.title === "Graphic Design & Branding" && (
+                  <Link to="/graphic-design" className="mb-6 inline-flex text-sm font-semibold text-primary underline underline-offset-4">
+                    Explore our graphic design services
+                  </Link>
+                )}
+                {category.title === "Software Development" && (
+                  <Link to="/app-development" className="mb-6 inline-flex text-sm font-semibold text-primary underline underline-offset-4">
+                    Explore app development
+                  </Link>
+                )}
                 <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
                   {category.items.map((item) => (
                     <li key={item} className="flex items-start gap-2">

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mail, Phone, MapPin } from "lucide-react";
 import Header from "@/components/Header";
+import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -94,6 +95,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEO
+        title="Contact PassionWorld Designs | Graphic Design & App Development"
+        description="Contact PassionWorld Designs to discuss graphic design, branding, mobile app development, websites, or another digital project."
+        canonical="/contact"
+      />
       <Header />
       <main className="flex-1">
         {/* Page Header */}
