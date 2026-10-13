@@ -7,6 +7,12 @@
     <loc>https://www.passionworlddesigns.com/services</loc>
   </url>
   <url>
+    <loc>https://www.passionworlddesigns.com/graphic-design</loc>
+  </url>
+  <url>
+    <loc>https://www.passionworlddesigns.com/app-development</loc>
+  </url>
+  <url>
     <loc>https://www.passionworlddesigns.com/portfolio</loc>
   </url>
   <url>
@@ -23,5 +29,8 @@
   </url>
   <url>
     <loc>https://www.passionworlddesigns.com/contact</loc>
+  </url>
+  <url>
+    <loc>https://www.passionworlddesigns.com/tools/project-planner</loc>
   </url>
 </urlset>

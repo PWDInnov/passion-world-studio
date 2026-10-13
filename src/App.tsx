@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import Index from "./pages/Index";
 import Services from "./pages/Services";
+import ServiceLandingPage from "./pages/ServiceLandingPage";
 import Portfolio from "./pages/Portfolio";
 import Testimonials from "./pages/Testimonials";
 import Vacancies from "./pages/Vacancies";
@@ -14,7 +15,6 @@ import ArticlePage from "./pages/ArticlePage";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
-import LoadingScreen from "@/components/LoadingScreen";
 import PassionChatbot from "@/components/PassionChatbot";
 import ProjectPlannerPage from "./pages/tools/ProjectPlannerPage";
 import NewsPage from "./pages/News";
@@ -22,16 +22,6 @@ import NewsPage from "./pages/News";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 5000); // Simulate loading for 5 seconds
-
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

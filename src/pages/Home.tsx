@@ -60,8 +60,8 @@ const Home = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
-        title="Graphic Design, Website Design & Branding Services | PassionWorld Designs"
-        description="PassionWorld Designs provides graphic design, logo design, branding, website design, web development, digital marketing, and creative content services."
+        title="Graphic Design, Logo Design & App Development | PassionWorld Designs"
+        description="PassionWorld Designs creates graphic designs, logos and brand identities, mobile apps, websites, and digital marketing for businesses."
         canonical="/"
       />
       <Header />
@@ -104,7 +104,7 @@ const Home = () => {
                 </div>
                   
                   <h1 id="home-hero-heading" className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 shimmer-heading text-balance">
-                    {data.heroTitle}
+                    Graphic Design &amp; App Development for Your Business
                   </h1>
                   
                   <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto text-pretty">
