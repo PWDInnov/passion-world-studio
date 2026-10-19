@@ -8,9 +8,10 @@ import StatsCounter from "@/components/StatsCounter";
 import Marquee from "@/components/Marquee";
 import useFirestore from '@/hooks/use-firestore';
 import { useInView } from 'react-intersection-observer';
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import NewsSection from "@/components/NewsSection";
 import SEO from "@/components/SEO";
+import LoadingScreen from "@/components/LoadingScreen";
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -46,6 +47,8 @@ const Home = () => {
   const { docs: homePageDocs, loading } = useFirestore('siteContent');
   const homePageData = homePageDocs.find(doc => doc.id === 'homePage');
   const [videoError, setVideoError] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+  const handleLoadingComplete = useCallback(() => setShowLoadingScreen(false), []);
 
   const defaultData = {
       heroTitle: "Innovative, Affordable, Unique Design Solutions",
@@ -64,6 +67,7 @@ const Home = () => {
         description="PassionWorld Designs creates graphic designs, logos and brand identities, mobile apps, websites, and digital marketing for businesses."
         canonical="/"
       />
+      {showLoadingScreen && <LoadingScreen onLoaded={handleLoadingComplete} />}
       <Header />
       
       <main id="main-content" className="flex-1">
