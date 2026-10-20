@@ -12,6 +12,7 @@ import Vacancies from "./pages/Vacancies";
 import LearningCenter from "./pages/LearningCenter";
 import ArticlePage from "./pages/ArticlePage";
 import Contact from "./pages/Contact";
+import StartProject from "./pages/StartProject";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import PassionChatbot from "@/components/PassionChatbot";
@@ -29,6 +30,8 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/graphic-design" element={<ServiceLandingPage service="graphic-design" />} />
+            <Route path="/app-development" element={<ServiceLandingPage service="app-development" />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/vacancies" element={<Vacancies />} />
@@ -36,6 +39,7 @@ const App = () => {
             <Route path="/blog" element={<LearningCenter />} />
             <Route path="/learning-center/:id" element={<ArticlePage />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/start-project" element={<StartProject />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/tools/project-planner" element={<ProjectPlannerPage />} />
             <Route path="/news" element={<NewsPage />} />

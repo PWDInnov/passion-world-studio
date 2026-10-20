@@ -43,7 +43,7 @@ const Services = () => {
         structuredData={serviceSchema}
       />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
 
         {/* Hero Section */}
         <section className="relative py-20 text-center bg-gradient-to-br from-background via-muted/30 to-background">

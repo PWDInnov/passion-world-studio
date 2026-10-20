@@ -101,7 +101,7 @@ const Contact = () => {
         canonical="/contact"
       />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         {/* Page Header */}
         <section className="bg-primary/5 py-16 text-center">
           <div className="container mx-auto px-4">

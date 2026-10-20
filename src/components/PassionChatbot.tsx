@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon, XMarkIcon, ChatBubbleLeftRightIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -68,7 +67,7 @@ const conversationTree = {
   vacancy_marketing: {
       bot: "The Digital Marketing Specialist role is a contract position. You'll be planning and managing campaigns, creating content, and using analytics to improve results. You can apply directly on the careers page.",
       options: [
-          { label: "Go to Careers Page", url: "/careers" },
+          { label: "Go to Careers Page", url: "/vacancies" },
           { label: "Back to vacancies.", next: "vacancies" },
       ],
   },
@@ -76,7 +75,7 @@ const conversationTree = {
     bot: "You can reach us through our contact form, send us an email, or chat with us on WhatsApp. What works best for you?",
     options: [
       { label: "Go to Contact Page", url: "/contact" },
-      { label: "Chat on WhatsApp", url: "https://wa.me/264812345678" }, // Replace with your number
+      { label: "Chat on WhatsApp", url: "https://wa.me/264858037211" },
       { label: "Back to start.", next: "start" },
     ],
   },
