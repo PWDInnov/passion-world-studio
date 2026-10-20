@@ -12,6 +12,7 @@ import Vacancies from "./pages/Vacancies";
 import LearningCenter from "./pages/LearningCenter";
 import ArticlePage from "./pages/ArticlePage";
 import Contact from "./pages/Contact";
+import StartProject from "./pages/StartProject";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import PassionChatbot from "@/components/PassionChatbot";
@@ -38,6 +39,7 @@ const App = () => {
             <Route path="/blog" element={<LearningCenter />} />
             <Route path="/learning-center/:id" element={<ArticlePage />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/start-project" element={<StartProject />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/tools/project-planner" element={<ProjectPlannerPage />} />
             <Route path="/news" element={<NewsPage />} />

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon, XMarkIcon, ChatBubbleLeftRightIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -68,7 +67,7 @@ const conversationTree = {
   vacancy_marketing: {
       bot: "The Digital Marketing Specialist role is a contract position. You'll be planning and managing campaigns, creating content, and using analytics to improve results. You can apply directly on the careers page.",
       options: [
-          { label: "Go to Careers Page", url: "/careers" },
+          { label: "Go to Careers Page", url: "/vacancies" },
           { label: "Back to vacancies.", next: "vacancies" },
       ],
   },

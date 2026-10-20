@@ -82,7 +82,7 @@ const ServiceLandingPage = ({ service }: { service: ServiceKey }) => {
         structuredData={serviceSchema}
       />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="bg-gradient-to-br from-background via-muted/30 to-background py-20 text-center">
           <div className="container mx-auto px-4">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">PassionWorld Designs</p>

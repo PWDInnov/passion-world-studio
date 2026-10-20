@@ -21,7 +21,7 @@ const Portfolio = () => {
         canonical="/portfolio"
       />
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 animate-fade-in-up">
