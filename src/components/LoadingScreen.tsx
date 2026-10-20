@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
@@ -25,7 +24,7 @@ const LoadingScreen = ({ onLoaded }: { onLoaded: () => void }) => {
     const circles = Array.from({ length: 15 });
 
   return (
-    <div className="fixed inset-0 bg-cream flex flex-col items-center justify-center z-[100] overflow-hidden">
+    <div className="fixed inset-0 bg-background flex flex-col items-center justify-center z-[100] overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
             {circles.map((_, i) => {
             const size = (i + 1) * 2;
