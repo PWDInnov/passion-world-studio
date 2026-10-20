@@ -1,9 +1,11 @@
-import { ChangeEvent, PointerEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, PointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import { addDoc, collection, doc, getDocs, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
+import { db } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileDown, FileText, Plus, Printer, RotateCcw, Trash2, Upload } from "lucide-react";
+import { FileDown, FileText, Plus, Printer, RotateCcw, Save, Trash2, Upload } from "lucide-react";
 import "./document-generator.css";
 
 type DocumentKind = "quotation" | "invoice";
@@ -42,6 +44,13 @@ type DocumentDetails = {
   notes: string;
   terms: string;
 };
+type SavedBusinessDocumentData = {
+  document: DocumentDetails;
+  company: CompanySettings;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+type SavedBusinessDocument = SavedBusinessDocumentData & { id: string };
 
 const COMPANY_STORAGE_KEY = "pwd-document-company-settings";
 const defaultCompany: CompanySettings = {
@@ -132,6 +141,10 @@ const DocumentGenerator = () => {
   const [document, setDocument] = useState<DocumentDetails>(() => createDocument());
   const [storageWarning, setStorageWarning] = useState(false);
   const [fileMessage, setFileMessage] = useState("");
+  const [savedDocuments, setSavedDocuments] = useState<SavedBusinessDocument[]>([]);
+  const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
+  const [isLoadingSavedDocuments, setIsLoadingSavedDocuments] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const signatureCanvas = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const sheetRef = useRef<HTMLElement>(null);
@@ -146,6 +159,29 @@ const DocumentGenerator = () => {
       setStorageWarning(true);
     }
   }, [company]);
+
+  const loadSavedDocuments = useCallback(async () => {
+    setIsLoadingSavedDocuments(true);
+    try {
+      const snapshot = await getDocs(collection(db, "businessDocuments"));
+      const records = snapshot.docs.map((savedDocument) => ({
+        id: savedDocument.id,
+        ...(savedDocument.data() as SavedBusinessDocumentData),
+      }));
+      records.sort((left, right) => (right.updatedAt?.toMillis() ?? 0) - (left.updatedAt?.toMillis() ?? 0));
+      setSavedDocuments(records);
+      return true;
+    } catch {
+      setFileMessage("Saved invoices and quotations could not be loaded.");
+      return false;
+    } finally {
+      setIsLoadingSavedDocuments(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSavedDocuments();
+  }, [loadSavedDocuments]);
 
   const totals = (() => {
     const subtotal = document.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
@@ -255,9 +291,54 @@ const DocumentGenerator = () => {
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const saveDocument = async () => {
+    setFileMessage("");
+    const documentSize = new Blob([JSON.stringify({ document, company })]).size;
+    if (documentSize > 900_000) {
+      setFileMessage("This document is too large to save. Use smaller logo or signature images, or shorten long text fields.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const documentData = {
+        document,
+        company,
+        kind: document.kind,
+        documentNumber: document.documentNumber,
+        updatedAt: serverTimestamp(),
+      };
+
+      if (savedDocumentId) {
+        await updateDoc(doc(db, "businessDocuments", savedDocumentId), documentData);
+      } else {
+        const savedDocument = await addDoc(collection(db, "businessDocuments"), {
+          ...documentData,
+          createdAt: serverTimestamp(),
+        });
+        setSavedDocumentId(savedDocument.id);
+      }
+
+      const refreshed = await loadSavedDocuments();
+      setFileMessage(refreshed ? "Document saved to Firestore." : "Document saved, but the saved list could not refresh.");
+    } catch {
+      setFileMessage("Unable to save this document to Firestore. Check your connection and try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const openSavedDocument = (savedDocument: SavedBusinessDocument) => {
+    setDocument(savedDocument.document);
+    setCompany(savedDocument.company);
+    setSavedDocumentId(savedDocument.id);
+    setFileMessage("");
+  };
+
   const startNewDocument = () => {
     if (!window.confirm("Start a new document? The current client details and line items will be cleared.")) return;
     setDocument(createDocument(document.kind));
+    setSavedDocumentId(null);
     setFileMessage("");
   };
 
@@ -272,17 +353,40 @@ const DocumentGenerator = () => {
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Business documents</p>
           <h2 className="mt-1 text-2xl font-semibold">Quotation &amp; invoice generator</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Build a polished client document, then print it or download a Word-compatible copy.</p>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Save editable invoices and quotations, then reopen, print, or download a Word-compatible copy.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={startNewDocument}><RotateCcw className="mr-2 h-4 w-4" />New document</Button>
           <Button variant="outline" onClick={downloadWordFile}><FileDown className="mr-2 h-4 w-4" />Download Word</Button>
+          <Button variant="outline" onClick={saveDocument} disabled={isSaving}><Save className="mr-2 h-4 w-4" />{isSaving ? "Saving..." : savedDocumentId ? "Save changes" : "Save document"}</Button>
           <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print / Save PDF</Button>
         </div>
       </div>
-      <p className="document-generator-intro text-xs text-muted-foreground">Company details and signature are saved only in this browser. Client document details are not uploaded or stored.</p>
+      <p className="document-generator-intro text-xs text-muted-foreground">Company defaults are saved in this browser. Saving a document stores its editable content and the business details used on it in Firestore.</p>
       {storageWarning && <p className="document-generator-intro text-xs text-amber-700">Browser storage is full; company settings may not persist after closing this page.</p>}
       {fileMessage && <p role="status" className="document-generator-intro text-xs text-amber-700">{fileMessage}</p>}
+
+      <section className="document-generator-intro space-y-3 rounded-xl border border-border bg-background p-4" aria-labelledby="saved-documents-heading">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 id="saved-documents-heading" className="text-sm font-semibold">Saved invoices &amp; quotations</h3>
+          {isLoadingSavedDocuments && <span className="text-xs text-muted-foreground">Loading saved documents...</span>}
+        </div>
+        {!isLoadingSavedDocuments && savedDocuments.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No saved documents yet. Save an invoice or quotation to find it here.</p>
+        ) : (
+          <div className="space-y-2">
+            {savedDocuments.map((savedDocument) => (
+              <div key={savedDocument.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{savedDocument.document.kind === "invoice" ? "Invoice" : "Quotation"} · {savedDocument.document.documentNumber}</p>
+                  <p className="truncate text-xs text-muted-foreground">{savedDocument.document.clientCompany || savedDocument.document.clientName || "No client name"} · {savedDocument.updatedAt?.toDate().toLocaleDateString() || "Recently saved"}</p>
+                </div>
+                <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => openSavedDocument(savedDocument)}>Open &amp; edit</Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="document-generator-layout grid items-start gap-5 xl:grid-cols-[minmax(360px,0.82fr)_minmax(580px,1.18fr)]">
         <section className="document-generator-editor space-y-4">
