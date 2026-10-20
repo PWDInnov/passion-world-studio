@@ -75,7 +75,7 @@ const conversationTree = {
     bot: "You can reach us through our contact form, send us an email, or chat with us on WhatsApp. What works best for you?",
     options: [
       { label: "Go to Contact Page", url: "/contact" },
-      { label: "Chat on WhatsApp", url: "https://wa.me/264812345678" }, // Replace with your number
+      { label: "Chat on WhatsApp", url: "https://wa.me/264858037211" },
       { label: "Back to start.", next: "start" },
     ],
   },
