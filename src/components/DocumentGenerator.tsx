@@ -508,9 +508,22 @@ const documentCss = `
 .pwd-signatory-name{margin:5px 0 0;color:#28251f;font-size:9px;font-weight:700}
 .pwd-signature-block p:last-child{margin:1px 0}
 .pwd-document-footer{display:flex;justify-content:space-between;gap:12px;margin-top:35px;padding-top:9px;border-top:1px solid #d8d4ca;color:#777168;font-size:8px}
-@media(max-width:640px){.pwd-document-sheet{padding:7mm;font-size:10px}.pwd-document-accent{margin:-7mm -7mm 7mm}.pwd-document-header{gap:8px}.pwd-company-block{gap:7px}.pwd-company-logo{width:52px;height:58px}.pwd-company-name{font-size:12px}.pwd-company-line{font-size:7px}.pwd-document-title-block h1{font-size:18px}.pwd-document-eyebrow{font-size:6px}.pwd-document-meta{grid-template-columns:1fr;gap:12px}.pwd-document-facts{grid-template-columns:1fr 1fr}.pwd-document-facts dd{text-align:left}.pwd-document-table th{padding:7px 3px;font-size:6px}.pwd-document-table td{padding:7px 3px;font-size:7px}.pwd-document-table .pwd-unit-price{width:21%}.pwd-document-table .pwd-amount{width:25%}.pwd-document-bottom{grid-template-columns:1fr;gap:18px}.pwd-signature-block{max-width:190px;margin-left:auto}.pwd-document-footer{font-size:6px}}
-@page{size:A4;margin:0}
-@media print{html,body{background:#fff!important}body *{visibility:hidden!important}.document-generator,.document-generator>*{display:contents!important}.document-generator-preview{overflow:visible!important}.pwd-document-sheet,.pwd-document-sheet *{visibility:visible!important}.pwd-document-sheet{position:absolute!important;left:0!important;top:0!important;width:210mm!important;max-width:none!important;min-height:297mm!important;margin:0!important;padding:13mm!important;border:0!important;border-radius:0!important;box-shadow:none!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.pwd-document-accent{margin:-13mm -13mm 9mm!important}.document-generator-intro,.document-generator-editor{display:none!important}.pwd-document-table tr,.pwd-totals,.pwd-document-bottom{break-inside:avoid}}
+@media screen and (max-width:640px){.pwd-document-sheet{padding:7mm;font-size:10px}.pwd-document-accent{margin:-7mm -7mm 7mm}.pwd-document-header{gap:8px}.pwd-company-block{gap:7px}.pwd-company-logo{width:52px;height:58px}.pwd-company-name{font-size:12px}.pwd-company-line{font-size:8px}.pwd-document-title-block h1{font-size:18px}.pwd-document-eyebrow{font-size:8px}.pwd-document-meta{grid-template-columns:1fr;gap:12px}.pwd-document-facts{grid-template-columns:1fr 1fr}.pwd-document-facts dd{text-align:left}.pwd-document-table th{padding:7px 3px;font-size:8px}.pwd-document-table td{padding:7px 3px;font-size:9px}.pwd-document-table .pwd-unit-price{width:21%}.pwd-document-table .pwd-amount{width:25%}.pwd-document-bottom{grid-template-columns:1fr;gap:18px}.pwd-signature-block{max-width:190px;margin-left:auto}.pwd-document-footer{font-size:8px}}
+@page{size:A4 portrait;margin:0}
+@media print{
+  html,body,#root{width:210mm!important;height:297mm!important;min-height:0!important;max-height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+  body{position:relative!important}
+  body *{visibility:hidden!important}
+  .document-generator,.document-generator>*{display:contents!important}
+  .document-generator-preview{overflow:visible!important}
+  .pwd-document-sheet,.pwd-document-sheet *{visibility:visible!important}
+  .pwd-document-sheet{position:absolute!important;left:0!important;top:0!important;width:210mm!important;max-width:none!important;min-height:297mm!important;margin:0!important;padding:10mm!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;box-shadow:none!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .pwd-document-accent{margin:-10mm -10mm 7mm!important}
+  .pwd-company-line,.pwd-bill-to p,.pwd-document-facts dt,.pwd-document-facts dd,.pwd-document-table td,.pwd-total-row,.pwd-grand-total,.pwd-document-notes p{font-size:10px!important}
+  .pwd-document-eyebrow,.pwd-section-label,.pwd-document-table th,.pwd-document-notes h3,.pwd-signature-block,.pwd-document-footer{font-size:9px!important}
+  .document-generator-intro,.document-generator-editor{display:none!important}
+  .pwd-document-table tr,.pwd-totals,.pwd-document-bottom{break-inside:avoid}
+}
 `;
 
 export default DocumentGenerator;
