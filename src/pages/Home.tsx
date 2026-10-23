@@ -12,6 +12,7 @@ import { useCallback, useState } from "react";
 import NewsSection from "@/components/NewsSection";
 import SEO from "@/components/SEO";
 import LoadingScreen from "@/components/LoadingScreen";
+import HomeBanner from "@/components/HomeBanner";
 
 const AnimatedSection = ({ children, effect }) => {
   const { ref, inView } = useInView({
@@ -91,6 +92,10 @@ const Home = () => {
             A background video showcasing PassionWorld Designs' creative work.
           </video>
           <div className="absolute inset-0 bg-black/50 z-10"></div>
+
+          {/* Glassy Floating Promotional Advert Card on Far Right Side of Hero Video */}
+          <HomeBanner />
+
           <div className="container mx-auto px-4 relative z-20">
             {loading ? (
               <div className="flex justify-center items-center h-64">

@@ -34,6 +34,10 @@ service cloud.firestore {
       allow read: if resource.data.isOpen == true || request.auth != null;
     }
 
+    match /homepageAds/{adId} {
+      allow read: if true;
+    }
+
     match /messages/{messageId} {
       allow read, update, delete: if request.auth != null;
       allow create: if request.resource.data.name is string

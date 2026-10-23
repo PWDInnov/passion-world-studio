@@ -18,7 +18,8 @@ import {
   Mail,
   Newspaper,
   SlidersHorizontal,
-  Sparkles
+  Sparkles,
+  Megaphone
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
@@ -36,6 +37,8 @@ import NewsManagement from "../components/NewsManagement";
 import VacancyManagement from "../components/VacancyManagement";
 import PlannerManager from "../components/PlannerManager";
 import DocumentGenerator from "@/components/DocumentGenerator";
+import AdvertManagement from "@/components/AdvertManagement";
+import { AdvertPost } from "@/types/advert";
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 import SEO from "@/components/SEO";
 import { initialTestimonials } from "@/data/testimonialsData";
@@ -49,6 +52,7 @@ const Admin = () => {
   const { docs: testimonials, setDocs: setTestimonials } = useFirestore('testimonials', !!user);
   const { docs: services, setDocs: setServices } = useFirestore('services', !!user);
   const { docs: newsItems } = useFirestore('news', !!user);
+  const { docs: homepageAds, setDocs: setHomepageAds } = useFirestore('homepageAds', !!user);
 
   const [isPortfolioFormOpen, setIsPortfolioFormOpen] = useState(false);
   const [isFooterFormOpen, setIsFooterFormOpen] = useState(false);
@@ -224,6 +228,7 @@ const Admin = () => {
 
   const stats = [
     { label: "Total Messages", value: messages.length, icon: MessageSquare },
+    { label: "Active Adverts", value: (homepageAds as unknown as AdvertPost[]).filter(a => a.isActive).length, icon: Megaphone },
     { label: "Blog Posts", value: blogPosts.length, icon: FileText },
     { label: "Portfolio Items", value: portfolioItems.length, icon: Image },
     { label: "News Items", value: newsItems.length, icon: Newspaper },
@@ -240,16 +245,35 @@ const Admin = () => {
         </div>
       </header>
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"> 
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 mb-8"> 
           {stats.map((stat, index) => (
-            <Card key={stat.label} className="hover-lift" style={{ animationDelay: `${index * 0.1}s` }}><CardContent className="p-6"><div className="flex items-center justify-between mb-2"><stat.icon className="text-primary" size={24} /><span className="text-3xl font-bold">{stat.value}</span></div><p className="text-sm text-muted-foreground">{stat.label}</p></CardContent></Card>
+            <Card key={stat.label} className="hover-lift" style={{ animationDelay: `${index * 0.1}s` }}><CardContent className="p-4 sm:p-6"><div className="flex items-center justify-between mb-2"><stat.icon className="text-primary" size={22} /><span className="text-2xl sm:text-3xl font-bold">{stat.value}</span></div><p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p></CardContent></Card>
           ))}
         </div>
         <Card>
           <CardHeader><CardTitle className="flex items-center gap-2"><LayoutDashboard size={24} /> Content Management</CardTitle></CardHeader>
           <CardContent>
-            <Tabs defaultValue="messages" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-10"><TabsTrigger value="pages">Pages</TabsTrigger><TabsTrigger value="services">Services</TabsTrigger><TabsTrigger value="portfolio">Portfolio</TabsTrigger><TabsTrigger value="blog">Blog</TabsTrigger><TabsTrigger value="news">News</TabsTrigger><TabsTrigger value="vacancies">Vacancies</TabsTrigger><TabsTrigger value="testimonials">Testimonials</TabsTrigger><TabsTrigger value="messages">Messages</TabsTrigger><TabsTrigger value="planner">Planner</TabsTrigger><TabsTrigger value="documents">Documents</TabsTrigger></TabsList>
+            <Tabs defaultValue="adverts" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 text-xs">
+                <TabsTrigger value="adverts">Adverts</TabsTrigger>
+                <TabsTrigger value="pages">Pages</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                <TabsTrigger value="blog">Blog</TabsTrigger>
+                <TabsTrigger value="news">News</TabsTrigger>
+                <TabsTrigger value="vacancies">Vacancies</TabsTrigger>
+                <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+                <TabsTrigger value="messages">Messages</TabsTrigger>
+                <TabsTrigger value="planner">Planner</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="adverts">
+                <AdvertManagement
+                  ads={homepageAds as unknown as AdvertPost[]}
+                  setAds={setHomepageAds as unknown as React.Dispatch<React.SetStateAction<AdvertPost[]>>}
+                />
+              </TabsContent>
 
               <TabsContent value="pages" className="space-y-4">
                 {isHomePageFormOpen ? <HomePageForm onSave={closePageForms} onCancel={closePageForms} />
