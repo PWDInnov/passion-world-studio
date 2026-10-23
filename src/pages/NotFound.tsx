@@ -11,7 +11,12 @@ const NotFound = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <SEO title="Page Not Found | PassionWorld Designs" description="The page you requested could not be found." robots="noindex, follow" />
+      <SEO
+        title="Page Not Found (404) | PassionWorld Designs"
+        description="The page you are looking for does not exist or may have moved. Return to the homepage or explore our design and development services."
+        canonical="/404"
+        robots="noindex, follow"
+      />
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold">404</h1>
         <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>

@@ -1,86 +1,98 @@
 import { useEffect } from "react";
 
-type SEOProps = {
-  title: string;
-  description: string;
+export interface SEOProps {
+  title?: string;
+  description?: string;
   canonical?: string;
-  type?: "website" | "article";
+  type?: string;
   image?: string;
+  ogImage?: string;
   imageAlt?: string;
   robots?: string;
-  structuredData?: Record<string, unknown> | Record<string, unknown>[];
-};
+  structuredData?: Record<string, unknown> | object;
+}
 
-const siteUrl = "https://www.passionworlddesigns.com";
-const defaultImage = `${siteUrl}/hero-background.jpg`;
-
-const absoluteUrl = (value: string) => new URL(value, siteUrl).toString();
-
-const setMeta = (attribute: "name" | "property", key: string, value: string) => {
-  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
-
-  if (!element) {
-    element = document.createElement("meta");
-    element.setAttribute(attribute, key);
-    document.head.appendChild(element);
-  }
-
-  element.content = value;
-};
+const BASE_URL = "https://www.passionworlddesigns.com";
 
 const SEO = ({
-  title,
-  description,
-  canonical,
+  title = "Graphic Design, Logo Design & App Development | PassionWorld Designs",
+  description = "PassionWorld Designs creates graphic designs, logos, brand identities, mobile apps, websites, and digital marketing solutions for businesses.",
+  canonical = "/",
   type = "website",
-  image = defaultImage,
-  imageAlt = "PassionWorld Designs creative work",
+  image = "https://www.dropbox.com/scl/fi/qm9h1nfzpni5qzs2wydqu/ChatGPT_Image_May_21__2026__10_08_26_AM-removebg-preview.png?rlkey=k9e8ak4q6xwbrltxi3dr0x5l5&st=pbitobzy&raw=1",
+  ogImage,
+  imageAlt = "PassionWorld Designs - Creative Design & App Development Studio",
   robots = "index, follow",
   structuredData,
 }: SEOProps) => {
+  const finalImage = ogImage || image;
+  const canonicalUrl = canonical.startsWith("http")
+    ? canonical
+    : `${BASE_URL}${canonical.startsWith("/") ? canonical : `/${canonical}`}`;
+
   useEffect(() => {
-    const canonicalUrl = absoluteUrl(canonical || window.location.pathname);
-    const imageUrl = absoluteUrl(image);
-
-    document.title = title;
-    document.documentElement.lang = "en";
-    setMeta("name", "description", description);
-    setMeta("name", "robots", robots);
-    setMeta("name", "author", "PassionWorld Designs");
-    setMeta("property", "og:title", title);
-    setMeta("property", "og:description", description);
-    setMeta("property", "og:type", type);
-    setMeta("property", "og:url", canonicalUrl);
-    setMeta("property", "og:site_name", "PassionWorld Designs");
-    setMeta("property", "og:image", imageUrl);
-    setMeta("property", "og:image:alt", imageAlt);
-    setMeta("name", "twitter:card", "summary_large_image");
-    setMeta("name", "twitter:title", title);
-    setMeta("name", "twitter:description", description);
-    setMeta("name", "twitter:image", imageUrl);
-    setMeta("name", "twitter:image:alt", imageAlt);
-
-    let canonicalElement = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-    if (!canonicalElement) {
-      canonicalElement = document.createElement("link");
-      canonicalElement.rel = "canonical";
-      document.head.appendChild(canonicalElement);
+    // 1. Update Document Title
+    if (title) {
+      document.title = title;
     }
-    canonicalElement.href = canonicalUrl;
 
-    const existingStructuredData = document.getElementById("route-structured-data");
-    if (structuredData) {
-      const script = existingStructuredData || document.createElement("script");
-      script.id = "route-structured-data";
-      script.setAttribute("type", "application/ld+json");
-      script.textContent = JSON.stringify(structuredData);
-      if (!existingStructuredData) {
-        document.head.appendChild(script);
+    // Helper to update or create meta tags
+    const setMetaTag = (attrName: "name" | "property", attrValue: string, content: string) => {
+      let element = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute(attrName, attrValue);
+        document.head.appendChild(element);
       }
-    } else {
-      existingStructuredData?.remove();
+      element.setAttribute("content", content);
+    };
+
+    // Standard meta tags
+    if (description) {
+      setMetaTag("name", "description", description);
     }
-  }, [canonical, description, image, imageAlt, robots, structuredData, title, type]);
+    if (robots) {
+      setMetaTag("name", "robots", robots);
+    }
+
+    // OpenGraph meta tags
+    setMetaTag("property", "og:title", title);
+    setMetaTag("property", "og:description", description);
+    setMetaTag("property", "og:url", canonicalUrl);
+    setMetaTag("property", "og:type", type);
+    setMetaTag("property", "og:image", finalImage);
+    setMetaTag("property", "og:image:alt", imageAlt);
+    setMetaTag("property", "og:site_name", "PassionWorld Designs");
+
+    // Twitter Card meta tags
+    setMetaTag("name", "twitter:card", "summary_large_image");
+    setMetaTag("name", "twitter:title", title);
+    setMetaTag("name", "twitter:description", description);
+    setMetaTag("name", "twitter:image", finalImage);
+
+    // Canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", canonicalUrl);
+
+    // JSON-LD Structured Data
+    const existingScript = document.getElementById("jsonld-structured-data");
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    if (structuredData) {
+      const script = document.createElement("script");
+      script.id = "jsonld-structured-data";
+      script.type = "application/ld+json";
+      script.text = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    }
+  }, [title, description, canonicalUrl, type, finalImage, imageAlt, robots, structuredData]);
 
   return null;
 };

@@ -1,101 +1,76 @@
-export const seoTopicIdeas = [
+import type { BlogPost } from "@/types";
+
+export interface SeoTopicIdea {
+  title: string;
+  category: string;
+  intent: string;
+}
+
+export const seoTopicIdeas: SeoTopicIdea[] = [
   {
-    title: "How Much Does Website Design Cost?",
-    service: "Website design and web development",
-    searchIntent: "Commercial investigation",
-    angle: "Explain the factors that shape a website design budget and how to plan a project that can grow with a business.",
+    title: "How to Build a High-Converting Brand Identity in 2026",
+    category: "Branding",
+    intent: "Commercial / Informational",
   },
   {
-    title: "How to Choose a Graphic Design Service for Your Business",
-    service: "Graphic design services",
-    searchIntent: "Service comparison",
-    angle: "Help business owners compare portfolios, process, deliverables, communication, and value before hiring a designer.",
+    title: "Mobile App vs. Responsive Web App: What Does Your Business Need?",
+    category: "Software Development",
+    intent: "Decision Support",
   },
   {
-    title: "Logo Design vs Brand Identity: What Does Your Business Need?",
-    service: "Logo design and branding",
-    searchIntent: "Educational",
-    angle: "Clarify the difference between a logo and a complete brand identity, including when each investment makes sense.",
-  },
-  {
-    title: "Website Design Checklist for Small Businesses",
-    service: "Business websites",
-    searchIntent: "Problem solving",
-    angle: "Give business owners a practical checklist for content, mobile experience, calls to action, trust signals, and SEO.",
-  },
-  {
-    title: "How Digital Marketing and Good Design Work Together",
-    service: "Digital marketing and creative content",
-    searchIntent: "Educational",
-    angle: "Show how consistent visuals, landing pages, social media design, and campaign messaging improve marketing performance.",
-  },
-  {
-    title: "E-commerce Website Features That Help Customers Buy",
-    service: "E-commerce website development",
-    searchIntent: "Commercial investigation",
-    angle: "Cover product presentation, checkout, mobile usability, payment options, trust, and ongoing support.",
-  },
-  {
-    title: "Why Professional Printing Still Matters for Local Brands",
-    service: "Printing and media",
-    searchIntent: "Educational",
-    angle: "Explain how business cards, signage, flyers, packaging, and branded merchandise support digital campaigns.",
-  },
-  {
-    title: "When Should a Business Invest in Custom Software?",
-    service: "Software development and IT services",
-    searchIntent: "Commercial investigation",
-    angle: "Help growing teams recognize when automation, integrations, dashboards, or custom systems can save time and reduce errors.",
+    title: "Essential SEO Tactics for Local Businesses and Startups",
+    category: "Digital Marketing",
+    intent: "Growth / Search",
   },
 ];
 
-export const seoArticleDrafts = [
+export const seoArticleDrafts: Omit<BlogPost, "id">[] = [
   {
-    title: "How Much Does Website Design Cost?",
-    excerpt: "Website design pricing depends on your goals, pages, functionality, content, and ongoing support. Here is how to plan a realistic website budget.",
-    content: "<p>There is no single price for a professional website because every business has different goals, content, and customer journeys. A simple landing page has different requirements from an e-commerce store, booking platform, or custom web application.</p><h2>What affects website design cost?</h2><ul><li><strong>Scope and number of pages:</strong> More pages require more planning, content structure, design, and testing.</li><li><strong>Design and branding:</strong> A custom visual direction, photography, illustrations, and brand guidelines affect the creative work involved.</li><li><strong>Features and integrations:</strong> Contact forms, payments, bookings, memberships, dashboards, and third-party systems add development time.</li><li><strong>Content and SEO:</strong> Copywriting, image preparation, keyword research, accessibility, and search-friendly page structure help the website perform after launch.</li><li><strong>Support and maintenance:</strong> Hosting guidance, updates, security, analytics, and ongoing improvements should be considered from the start.</li></ul><h2>How to plan a useful budget</h2><p>Start by listing the business outcome you want the website to achieve, the pages customers need, and the actions you want visitors to take. A clear project brief helps a website design team recommend the right solution instead of adding features that do not support your goals.</p><h2>Choose value, not just the lowest price</h2><p>A website is part of your sales and brand experience. The right partner should explain the process, deliverables, timeline, ownership, and support clearly. At PassionWorld Designs, we combine website design, web development, branding, and SEO foundations to create a practical digital presence for growing businesses.</p>",
-    author: "PassionWorld Designs",
-    date: new Date().toISOString(),
-    readTime: "6 min read",
-    imageUrl: "",
-    imageAlt: "",
-    tags: ["Website Design", "Web Development", "SEO", "Business Growth"],
-    slug: "how-much-does-website-design-cost",
-    status: "draft",
-    metaTitle: "How Much Does Website Design Cost? | PassionWorld Designs",
-    metaDescription: "Learn what affects website design cost, from pages and branding to features, SEO, integrations, and ongoing support.",
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    title: "How to Choose a Graphic Design Service for Your Business",
-    excerpt: "The right graphic design partner should understand your goals, audience, brand, and the materials you need to grow with confidence.",
-    content: "<p>Choosing a graphic design service is about more than finding attractive images. Your designer or design agency should help you communicate clearly across the places customers discover and remember your business.</p><h2>Start with the outcomes you need</h2><p>Before comparing providers, list the materials you need, such as a logo, brand identity, social media designs, flyers, brochures, packaging, or signage. Knowing the outcome makes it easier to compare relevant experience.</p><h2>Review the process as well as the portfolio</h2><p>A strong portfolio shows quality, but a clear process shows how the team will work with you. Ask how they gather information, present concepts, handle revisions, prepare final files, and keep designs consistent across print and digital channels.</p><h2>Look for a design system that can grow</h2><p>Professional graphic design services should give your business repeatable rules for color, typography, imagery, and layout. This makes future marketing faster and helps customers recognize your brand.</p><p>PassionWorld Designs provides graphic design, branding, creative content, and printing support so businesses can build a consistent presence from their first idea through launch.</p>",
-    author: "PassionWorld Designs",
+    title: "How to Build a High-Converting Brand Identity in 2026",
+    slug: "build-high-converting-brand-identity",
+    excerpt: "Discover the core visual and psychological elements behind memorable branding that turns first-time visitors into loyal brand advocates.",
+    content: `
+      <h2>The Anatomy of a Modern Brand Identity</h2>
+      <p>In today's crowded digital marketplace, a brand is far more than just a logo. It is the emotional and functional promise your business makes to every customer who encounters your products.</p>
+      <h3>1. Typography with Intent</h3>
+      <p>Carefully chosen typography establishes hierarchy, tone, and credibility in less than a second.</p>
+      <h3>2. Color Psychology & Contrast</h3>
+      <p>High-contrast palettes enhance accessibility while evoking distinct emotional states—from confidence and luxury to energy and innovation.</p>
+      <h3>3. Consistent Design Systems</h3>
+      <p>Ensuring your website, mobile app, and print packaging share unified design tokens eliminates friction and builds consumer trust.</p>
+    `,
+    author: "PassionWorld Team",
     date: new Date().toISOString(),
     readTime: "5 min read",
-    imageUrl: "",
-    imageAlt: "",
-    tags: ["Graphic Design", "Branding", "Logo Design", "Creative Content"],
-    slug: "how-to-choose-a-graphic-design-service",
-    status: "draft",
-    metaTitle: "How to Choose a Graphic Design Service | PassionWorld Designs",
-    metaDescription: "Compare graphic design services by portfolio, process, deliverables, brand consistency, and the support your business needs.",
-    updatedAt: new Date().toISOString(),
+    imageUrl: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop",
+    imageAlt: "Brand design sketches and color swatches",
+    tags: ["Branding", "Design", "Identity", "Conversion"],
+    status: "published",
+    metaTitle: "How to Build a High-Converting Brand Identity in 2026",
+    metaDescription: "Learn key strategies to build a cohesive, memorable visual brand that commands attention and drives client conversion.",
+    publishedAt: new Date().toISOString(),
   },
   {
-    title: "Logo Design vs Brand Identity: What Does Your Business Need?",
-    excerpt: "A logo is one part of a brand identity. Learn what each includes and when your business may need a broader branding system.",
-    content: "<p>A logo helps people identify your business, while a brand identity gives every customer touchpoint a consistent voice and visual direction. Understanding the difference helps you invest in the right foundation.</p><h2>What a logo does</h2><p>A logo is a recognizable mark or wordmark used on your website, social profiles, documents, packaging, and other branded materials. It is an important starting point, but it cannot communicate every part of your brand on its own.</p><h2>What a brand identity includes</h2><p>A broader identity can include colors, typography, imagery, layout rules, tone of voice, logo variations, and guidance for using the system consistently. These elements help your business look and sound familiar wherever customers find you.</p><h2>Which option is right for you?</h2><p>A new business may begin with a thoughtful logo and a compact set of brand guidelines. A growing business preparing for a new market, website, or campaign may benefit from a complete identity system that can support digital marketing, print, and sales materials.</p>",
-    author: "PassionWorld Designs",
+    title: "Mobile App vs. Responsive Web App: Which Path Is Right for You?",
+    slug: "mobile-app-vs-responsive-web-app",
+    excerpt: "Comparing performance, development costs, offline capabilities, and audience reach to help you choose the best technology stack.",
+    content: `
+      <h2>Choosing the Right Platform for Your Vision</h2>
+      <p>Deciding whether to build a native mobile app or an accessible web application is one of the most critical product decisions for early-stage and growing ventures.</p>
+      <h3>When to Choose a Web App</h3>
+      <p>Web applications deliver frictionless discovery via search engines, instant updates without app store reviews, and rapid cross-device availability.</p>
+      <h3>When to Invest in a Native Mobile App</h3>
+      <p>If your product requires deep device hardware access (biometrics, Bluetooth, camera processing), rich push notifications, or reliable offline execution, native or Flutter/React Native apps are unmatched.</p>
+    `,
+    author: "PassionWorld Engineering",
     date: new Date().toISOString(),
-    readTime: "4 min read",
-    imageUrl: "",
-    imageAlt: "",
-    tags: ["Logo Design", "Brand Identity", "Branding", "Graphic Design"],
-    slug: "logo-design-vs-brand-identity",
-    status: "draft",
-    metaTitle: "Logo Design vs Brand Identity: What Does Your Business Need?",
-    metaDescription: "Understand the difference between logo design and a complete brand identity, and decide which branding investment fits your business.",
-    updatedAt: new Date().toISOString(),
+    readTime: "6 min read",
+    imageUrl: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop",
+    imageAlt: "Mobile application interface on smartphone",
+    tags: ["Mobile Apps", "Web Development", "Technology", "UI/UX"],
+    status: "published",
+    metaTitle: "Mobile App vs. Responsive Web App: Complete Business Guide",
+    metaDescription: "Understand the ROI, development timelines, and performance tradeoffs between mobile applications and custom web solutions.",
+    publishedAt: new Date().toISOString(),
   },
 ];

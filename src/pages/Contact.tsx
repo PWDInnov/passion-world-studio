@@ -96,8 +96,8 @@ const Contact = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SEO
-        title="Contact PassionWorld Designs | Graphic Design & App Development"
-        description="Contact PassionWorld Designs to discuss graphic design, branding, mobile app development, websites, or another digital project."
+        title="Contact Us – Request a Free Consultation | PassionWorld Designs"
+        description="Ready to start your next creative project? Contact PassionWorld Designs for custom graphic design, app development, and branding inquiries."
         canonical="/contact"
       />
       <Header />

@@ -11,7 +11,7 @@ interface Message {
   name: string;
   email: string;
   message: string;
-  timestamp: any;
+  timestamp?: { toDate: () => Date } | null;
 }
 
 const MessageList = () => {
@@ -20,14 +20,21 @@ const MessageList = () => {
 
   useEffect(() => {
     const q = query(collection(db, 'messages'), orderBy('timestamp', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const messagesData: Message[] = [];
-      querySnapshot.forEach((doc) => {
-        messagesData.push({ id: doc.id, ...doc.data() } as Message);
-      });
-      setMessages(messagesData);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const messagesData: Message[] = [];
+        querySnapshot.forEach((doc) => {
+          messagesData.push({ id: doc.id, ...doc.data() } as Message);
+        });
+        setMessages(messagesData);
+        setLoading(false);
+      },
+      (error) => {
+        console.warn("MessageList snapshot listener:", error?.message || error);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);

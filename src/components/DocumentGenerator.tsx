@@ -1,633 +1,231 @@
-import { ChangeEvent, PointerEvent, useCallback, useEffect, useRef, useState } from "react";
-import { addDoc, collection, doc, getDocs, serverTimestamp, Timestamp, updateDoc } from "firebase/firestore";
-import { db } from "@/firebase";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileDown, FileText, Plus, Printer, RotateCcw, Save, Trash2, Upload } from "lucide-react";
-import "./document-generator.css";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Trash2, Printer, Download, FileText } from "lucide-react";
 
-type DocumentKind = "quotation" | "invoice";
-type Currency = "NAD" | "ZAR" | "USD";
-type LineItem = { id: string; description: string; quantity: number; unitPrice: number };
-type CompanySettings = {
-  name: string;
-  registration: string;
-  phone: string;
-  email: string;
-  website: string;
-  address: string;
-  logoUrl: string;
-  signatory: string;
-  signatoryTitle: string;
-  signatureUrl: string;
-  paymentDetails: string;
-};
-type DocumentDetails = {
-  kind: DocumentKind;
-  documentNumber: string;
-  issueDate: string;
-  dueDate: string;
-  currency: Currency;
-  clientName: string;
-  clientCompany: string;
-  clientEmail: string;
-  clientPhone: string;
-  clientAddress: string;
-  reference: string;
-  items: LineItem[];
-  discountPercent: number;
-  taxPercent: number;
-  paidAmount: number;
-  status: "Draft" | "Unpaid" | "Partially paid" | "Paid";
-  notes: string;
-  terms: string;
-};
-type SavedBusinessDocumentData = {
-  document: DocumentDetails;
-  company: CompanySettings;
-  createdAt?: Timestamp;
-  updatedAt?: Timestamp;
-};
-type SavedBusinessDocument = SavedBusinessDocumentData & { id: string };
-
-const COMPANY_STORAGE_KEY = "pwd-document-company-settings";
-const defaultCompany: CompanySettings = {
-  name: "Passion World Designs",
-  registration: "",
-  phone: "+264 81 3100 204",
-  email: "pwdinnovate@hotmail.com",
-  website: "www.passionworlddesigns.com",
-  address: "Windhoek, Namibia",
-  logoUrl: "https://cdn.builder.io/api/v1/image/assets%2F33ccba396c2d4c9491b2c70ac3a19821%2F8014310f61cd41eab08ad68e0d5d54da?format=webp&width=800&height=1200",
-  signatory: "",
-  signatoryTitle: "Authorized Signatory",
-  signatureUrl: "",
-  paymentDetails: "",
-};
-
-const localDate = () => {
-  const date = new Date();
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-};
-
-const newDocumentNumber = (kind: DocumentKind) => {
-  const prefix = kind === "quotation" ? "QUO" : "INV";
-  return `PWD/${prefix}/${new Date().getFullYear()}/${Date.now().toString(36).toUpperCase().slice(-5)}`;
-};
-
-const createDocument = (kind: DocumentKind = "quotation"): DocumentDetails => ({
-  kind,
-  documentNumber: newDocumentNumber(kind),
-  issueDate: localDate(),
-  dueDate: "",
-  currency: "NAD",
-  clientName: "",
-  clientCompany: "",
-  clientEmail: "",
-  clientPhone: "",
-  clientAddress: "",
-  reference: "",
-  items: [{ id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0 }],
-  discountPercent: 0,
-  taxPercent: 0,
-  paidAmount: 0,
-  status: "Draft",
-  notes: "",
-  terms: kind === "quotation"
-    ? "This quotation is valid for 14 days. Work begins upon written approval and receipt of the agreed deposit."
-    : "Payment is due by the date indicated above. Please use the invoice number as your payment reference.",
-});
-
-const readCompanySettings = (): CompanySettings => {
-  try {
-    const stored = localStorage.getItem(COMPANY_STORAGE_KEY);
-    return stored ? { ...defaultCompany, ...JSON.parse(stored) } : defaultCompany;
-  } catch {
-    return defaultCompany;
-  }
-};
-
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <label className="block space-y-1.5">
-    <span className="text-xs font-medium text-muted-foreground">{label}</span>
-    {children}
-  </label>
-);
-
-const safeImageSource = (source: string) => {
-  const value = source.trim();
-  return /^https:\/\//i.test(value) || /^data:image\/(png|jpeg|webp);base64,/i.test(value) ? value : "";
-};
-
-const formatMoney = (amount: number, currency: Currency) => new Intl.NumberFormat("en-NA", {
-  style: "currency",
-  currency,
-  minimumFractionDigits: 2,
-}).format(Number.isFinite(amount) ? amount : 0);
-
-const formatDate = (value: string) => value
-  ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(`${value}T00:00:00`))
-  : "—";
-
-const numberValue = (value: string) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
+interface LineItem {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+}
 
 const DocumentGenerator = () => {
-  const [company, setCompany] = useState<CompanySettings>(readCompanySettings);
-  const [document, setDocument] = useState<DocumentDetails>(() => createDocument());
-  const [storageWarning, setStorageWarning] = useState(false);
-  const [fileMessage, setFileMessage] = useState("");
-  const [savedDocuments, setSavedDocuments] = useState<SavedBusinessDocument[]>([]);
-  const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
-  const [isLoadingSavedDocuments, setIsLoadingSavedDocuments] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const signatureCanvas = useRef<HTMLCanvasElement>(null);
-  const isDrawing = useRef(false);
-  const sheetRef = useRef<HTMLElement>(null);
-  const logoInput = useRef<HTMLInputElement>(null);
-  const signatureInput = useRef<HTMLInputElement>(null);
+  const [docType, setDocType] = useState<"Quotation" | "Invoice" | "Receipt">("Quotation");
+  const [docNumber, setDocNumber] = useState(`PWD-${Math.floor(1000 + Math.random() * 9000)}`);
+  const [docDate, setDocDate] = useState(new Date().toISOString().split("T")[0]);
+  const [dueDate, setDueDate] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [notes, setNotes] = useState("Thank you for your business. Payment terms: 50% deposit, 50% on delivery.");
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(COMPANY_STORAGE_KEY, JSON.stringify(company));
-      setStorageWarning(false);
-    } catch {
-      setStorageWarning(true);
-    }
-  }, [company]);
+  const [items, setItems] = useState<LineItem[]>([
+    { id: "1", description: "Custom Website Design & Development", quantity: 1, rate: 850 },
+    { id: "2", description: "Brand Identity & Logo Package", quantity: 1, rate: 300 },
+  ]);
 
-  const loadSavedDocuments = useCallback(async () => {
-    setIsLoadingSavedDocuments(true);
-    try {
-      const snapshot = await getDocs(collection(db, "businessDocuments"));
-      const records = snapshot.docs.map((savedDocument) => ({
-        id: savedDocument.id,
-        ...(savedDocument.data() as SavedBusinessDocumentData),
-      }));
-      records.sort((left, right) => (right.updatedAt?.toMillis() ?? 0) - (left.updatedAt?.toMillis() ?? 0));
-      setSavedDocuments(records);
-      return true;
-    } catch {
-      setFileMessage("Saved invoices and quotations could not be loaded.");
-      return false;
-    } finally {
-      setIsLoadingSavedDocuments(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadSavedDocuments();
-  }, [loadSavedDocuments]);
-
-  const totals = (() => {
-    const subtotal = document.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-    const discount = subtotal * document.discountPercent / 100;
-    const taxableAmount = subtotal - discount;
-    const tax = taxableAmount * document.taxPercent / 100;
-    const total = taxableAmount + tax;
-    return { subtotal, discount, tax, total, balance: Math.max(total - document.paidAmount, 0) };
-  })();
-
-  const updateCompany = <K extends keyof CompanySettings>(key: K, value: CompanySettings[K]) => {
-    setCompany((current) => ({ ...current, [key]: value }));
+  const addItem = () => {
+    setItems((prev) => [
+      ...prev,
+      { id: Date.now().toString(), description: "New Item", quantity: 1, rate: 100 },
+    ]);
   };
 
-  const updateDocument = <K extends keyof DocumentDetails>(key: K, value: DocumentDetails[K]) => {
-    setDocument((current) => ({ ...current, [key]: value }));
+  const removeItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const changeDocumentKind = (kind: DocumentKind) => {
-    setDocument((current) => ({
-      ...current,
-      kind,
-      documentNumber: newDocumentNumber(kind),
-      status: "Draft",
-      paidAmount: kind === "quotation" ? 0 : current.paidAmount,
-      terms: kind === "quotation"
-        ? "This quotation is valid for 14 days. Work begins upon written approval and receipt of the agreed deposit."
-        : "Payment is due by the date indicated above. Please use the invoice number as your payment reference.",
-    }));
+  const updateItem = (id: string, field: keyof LineItem, val: string | number) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: val } : item))
+    );
   };
 
-  const updateItem = (id: string, key: "description" | "quantity" | "unitPrice", value: string) => {
-    setDocument((current) => ({
-      ...current,
-      items: current.items.map((item) => item.id === id
-        ? { ...item, [key]: key === "description" ? value : Math.max(0, numberValue(value)) }
-        : item),
-    }));
+  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
+
+  const handlePrint = () => {
+    window.print();
   };
-
-  const readImageFile = (event: ChangeEvent<HTMLInputElement>, key: "logoUrl" | "signatureUrl") => {
-    const file = event.currentTarget.files?.[0];
-    event.currentTarget.value = "";
-    setFileMessage("");
-    if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 750_000) {
-      setFileMessage("Choose a PNG, JPG, or WebP image under 750 KB.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => updateCompany(key, String(reader.result));
-    reader.readAsDataURL(file);
-  };
-
-  const pointerPosition = (event: PointerEvent<HTMLCanvasElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    return {
-      x: (event.clientX - bounds.left) * (event.currentTarget.width / bounds.width),
-      y: (event.clientY - bounds.top) * (event.currentTarget.height / bounds.height),
-    };
-  };
-
-  const startSignature = (event: PointerEvent<HTMLCanvasElement>) => {
-    const canvas = event.currentTarget;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-    isDrawing.current = true;
-    canvas.setPointerCapture(event.pointerId);
-    const point = pointerPosition(event);
-    context.beginPath();
-    context.moveTo(point.x, point.y);
-    context.lineWidth = 3;
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    context.strokeStyle = "#1b1a17";
-  };
-
-  const drawSignature = (event: PointerEvent<HTMLCanvasElement>) => {
-    if (!isDrawing.current) return;
-    const context = event.currentTarget.getContext("2d");
-    if (!context) return;
-    const point = pointerPosition(event);
-    context.lineTo(point.x, point.y);
-    context.stroke();
-  };
-
-  const finishSignature = () => {
-    if (!isDrawing.current) return;
-    isDrawing.current = false;
-    if (signatureCanvas.current) updateCompany("signatureUrl", signatureCanvas.current.toDataURL("image/png"));
-  };
-
-  const clearSignature = () => {
-    const canvas = signatureCanvas.current;
-    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
-    updateCompany("signatureUrl", "");
-  };
-
-  const downloadWordFile = () => {
-    if (!sheetRef.current) return;
-    const wordDocument = `<!doctype html><html><head><meta charset="utf-8"><style>${documentCss}</style></head><body>${sheetRef.current.outerHTML}</body></html>`;
-    const url = URL.createObjectURL(new Blob([wordDocument], { type: "application/msword;charset=utf-8" }));
-    const link = window.document.createElement("a");
-    link.href = url;
-    link.download = `${document.documentNumber.replace(/[^a-z0-9-_]+/gi, "-") || "PWD-document"}.doc`;
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
-  const saveDocument = async () => {
-    setFileMessage("");
-    const documentSize = new Blob([JSON.stringify({ document, company })]).size;
-    if (documentSize > 900_000) {
-      setFileMessage("This document is too large to save. Use smaller logo or signature images, or shorten long text fields.");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const documentData = {
-        document,
-        company,
-        kind: document.kind,
-        documentNumber: document.documentNumber,
-        updatedAt: serverTimestamp(),
-      };
-
-      if (savedDocumentId) {
-        await updateDoc(doc(db, "businessDocuments", savedDocumentId), documentData);
-      } else {
-        const savedDocument = await addDoc(collection(db, "businessDocuments"), {
-          ...documentData,
-          createdAt: serverTimestamp(),
-        });
-        setSavedDocumentId(savedDocument.id);
-      }
-
-      const refreshed = await loadSavedDocuments();
-      setFileMessage(refreshed ? "Document saved to Firestore." : "Document saved, but the saved list could not refresh.");
-    } catch {
-      setFileMessage("Unable to save this document to Firestore. Check your connection and try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const openSavedDocument = (savedDocument: SavedBusinessDocument) => {
-    setDocument(savedDocument.document);
-    setCompany(savedDocument.company);
-    setSavedDocumentId(savedDocument.id);
-    setFileMessage("");
-  };
-
-  const startNewDocument = () => {
-    if (!window.confirm("Start a new document? The current client details and line items will be cleared.")) return;
-    setDocument(createDocument(document.kind));
-    setSavedDocumentId(null);
-    setFileMessage("");
-  };
-
-  const logoSource = safeImageSource(company.logoUrl);
-  const signatureSource = safeImageSource(company.signatureUrl);
-  const isQuotation = document.kind === "quotation";
 
   return (
-    <div className="document-generator space-y-5">
-      <style>{documentCss}</style>
-      <div className="document-generator-intro flex flex-col gap-4 rounded-xl border border-border bg-background p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Business documents</p>
-          <h2 className="mt-1 text-2xl font-semibold">Quotation &amp; invoice generator</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Save editable invoices and quotations, then reopen, print, or download a Word-compatible copy.</p>
+          <h3 className="text-xl font-bold">Invoices &amp; Quotation Generator</h3>
+          <p className="text-xs text-muted-foreground">Draft and print official PassionWorld Designs quotations, invoices, and receipts.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={startNewDocument}><RotateCcw className="mr-2 h-4 w-4" />New document</Button>
-          <Button variant="outline" onClick={downloadWordFile}><FileDown className="mr-2 h-4 w-4" />Download Word</Button>
-          <Button variant="outline" onClick={saveDocument} disabled={isSaving}><Save className="mr-2 h-4 w-4" />{isSaving ? "Saving..." : savedDocumentId ? "Save changes" : "Save document"}</Button>
-          <Button onClick={() => window.print()}><Printer className="mr-2 h-4 w-4" />Print / Save PDF</Button>
+        <div className="flex gap-2">
+          <Button onClick={handlePrint} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Printer className="w-4 h-4 mr-2" /> Print / Save as PDF
+          </Button>
         </div>
       </div>
-      <p className="document-generator-intro text-xs text-muted-foreground">Company defaults are saved in this browser. Saving a document stores its editable content and the business details used on it in Firestore.</p>
-      {storageWarning && <p className="document-generator-intro text-xs text-amber-700">Browser storage is full; company settings may not persist after closing this page.</p>}
-      {fileMessage && <p role="status" className="document-generator-intro text-xs text-amber-700">{fileMessage}</p>}
 
-      <section className="document-generator-intro space-y-3 rounded-xl border border-border bg-background p-4" aria-labelledby="saved-documents-heading">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 id="saved-documents-heading" className="text-sm font-semibold">Saved invoices &amp; quotations</h3>
-          {isLoadingSavedDocuments && <span className="text-xs text-muted-foreground">Loading saved documents...</span>}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Controls */}
+        <div className="lg:col-span-1 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Document Parameters</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Document Type</label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                  value={docType}
+                  onChange={(e) => setDocType(e.target.value as "Quotation" | "Invoice" | "Receipt")}
+                >
+                  <option value="Quotation">Quotation</option>
+                  <option value="Invoice">Invoice</option>
+                  <option value="Receipt">Official Receipt</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Reference Number</label>
+                <Input value={docNumber} onChange={(e) => setDocNumber(e.target.value)} />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Issue Date</label>
+                <Input type="date" value={docDate} onChange={(e) => setDocDate(e.target.value)} />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Client Name / Business</label>
+                <Input placeholder="Client Co. Ltd" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Client Email</label>
+                <Input placeholder="client@company.com" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} />
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground block mb-1">Notes / Bank Details</label>
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
-        {!isLoadingSavedDocuments && savedDocuments.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No saved documents yet. Save an invoice or quotation to find it here.</p>
-        ) : (
-          <div className="space-y-2">
-            {savedDocuments.map((savedDocument) => (
-              <div key={savedDocument.id} className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{savedDocument.document.kind === "invoice" ? "Invoice" : "Quotation"} · {savedDocument.document.documentNumber}</p>
-                  <p className="truncate text-xs text-muted-foreground">{savedDocument.document.clientCompany || savedDocument.document.clientName || "No client name"} · {savedDocument.updatedAt?.toDate().toLocaleDateString() || "Recently saved"}</p>
-                </div>
-                <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => openSavedDocument(savedDocument)}>Open &amp; edit</Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
 
-      <div className="document-generator-layout grid items-start gap-5 xl:grid-cols-[minmax(360px,0.82fr)_minmax(580px,1.18fr)]">
-        <section className="document-generator-editor space-y-4">
-          <details open className="rounded-xl border border-border bg-background p-4">
-            <summary className="cursor-pointer text-sm font-semibold">Your business details &amp; signature</summary>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Field label="Business name"><Input value={company.name} onChange={(event) => updateCompany("name", event.target.value)} /></Field>
-              <Field label="Registration number"><Input value={company.registration} onChange={(event) => updateCompany("registration", event.target.value)} placeholder="Optional" /></Field>
-              <Field label="Phone"><Input value={company.phone} onChange={(event) => updateCompany("phone", event.target.value)} /></Field>
-              <Field label="Email"><Input type="email" value={company.email} onChange={(event) => updateCompany("email", event.target.value)} /></Field>
-              <Field label="Website"><Input value={company.website} onChange={(event) => updateCompany("website", event.target.value)} /></Field>
-              <Field label="Business address"><Input value={company.address} onChange={(event) => updateCompany("address", event.target.value)} /></Field>
-              <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs font-medium text-muted-foreground">Company logo</Label>
-                <Input aria-label="Company logo image URL" value={company.logoUrl.startsWith("data:") ? "Uploaded logo" : company.logoUrl} onChange={(event) => updateCompany("logoUrl", event.target.value)} placeholder="https://..." />
-                <div className="flex items-center gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => logoInput.current?.click()}><Upload className="mr-2 h-3.5 w-3.5" />Upload logo</Button>
-                  {company.logoUrl && <Button type="button" variant="ghost" size="sm" onClick={() => updateCompany("logoUrl", "")}>Remove</Button>}
-                  <input ref={logoInput} className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => readImageFile(event, "logoUrl")} />
-                </div>
-              </div>
-              <Field label="Authorized signatory"><Input value={company.signatory} onChange={(event) => updateCompany("signatory", event.target.value)} placeholder="Your name" /></Field>
-              <Field label="Signatory title"><Input value={company.signatoryTitle} onChange={(event) => updateCompany("signatoryTitle", event.target.value)} /></Field>
-              <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs font-medium text-muted-foreground">Signature</Label>
-                {signatureSource ? <img src={signatureSource} alt="Authorized signature preview" className="h-20 w-full rounded-md border border-dashed border-border bg-white object-contain p-2" /> : (
-                  <canvas
-                    ref={signatureCanvas}
-                    width={520}
-                    height={120}
-                    aria-label="Draw your signature"
-                    className="h-24 w-full touch-none rounded-md border border-dashed border-border bg-white"
-                    onPointerDown={startSignature}
-                    onPointerMove={drawSignature}
-                    onPointerUp={finishSignature}
-                    onPointerCancel={finishSignature}
-                  />
-                )}
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => signatureInput.current?.click()}><Upload className="mr-2 h-3.5 w-3.5" />Upload signature</Button>
-                  <Button type="button" variant="ghost" size="sm" onClick={clearSignature}>Clear signature</Button>
-                  <input ref={signatureInput} className="hidden" type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => readImageFile(event, "signatureUrl")} />
-                </div>
-                <p className="text-[11px] text-muted-foreground">Draw above or upload your signature image. It is stored in this browser only.</p>
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label className="text-xs font-medium text-muted-foreground">Payment details</Label>
-                <Textarea rows={2} value={company.paymentDetails} onChange={(event) => updateCompany("paymentDetails", event.target.value)} placeholder="Bank, account name, account number, branch" />
-              </div>
-            </div>
-          </details>
-
-          <div className="space-y-4 rounded-xl border border-border bg-background p-4">
-            <div className="flex items-center gap-2 border-b border-border pb-3"><FileText className="h-4 w-4 text-primary" /><h3 className="text-sm font-semibold">Document details</h3></div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Document type"><select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={document.kind} onChange={(event) => changeDocumentKind(event.target.value as DocumentKind)}><option value="quotation">Quotation</option><option value="invoice">Invoice</option></select></Field>
-              <Field label="Document number"><Input value={document.documentNumber} onChange={(event) => updateDocument("documentNumber", event.target.value)} /></Field>
-              <Field label="Issue date"><Input type="date" value={document.issueDate} onChange={(event) => updateDocument("issueDate", event.target.value)} /></Field>
-              <Field label={isQuotation ? "Valid until" : "Due date"}><Input type="date" value={document.dueDate} onChange={(event) => updateDocument("dueDate", event.target.value)} /></Field>
-              <Field label="Currency"><select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={document.currency} onChange={(event) => updateDocument("currency", event.target.value as Currency)}><option value="NAD">NAD — Namibian dollar</option><option value="ZAR">ZAR — South African rand</option><option value="USD">USD — US dollar</option></select></Field>
-              {!isQuotation && <Field label="Invoice status"><select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={document.status} onChange={(event) => updateDocument("status", event.target.value as DocumentDetails["status"])}><option>Draft</option><option>Unpaid</option><option>Partially paid</option><option>Paid</option></select></Field>}
-            </div>
-          </div>
-
-          <div className="space-y-4 rounded-xl border border-border bg-background p-4">
-            <div className="flex items-center gap-2 border-b border-border pb-3"><h3 className="text-sm font-semibold">Bill to</h3></div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Client / contact name"><Input value={document.clientName} onChange={(event) => updateDocument("clientName", event.target.value)} placeholder="Client name" /></Field>
-              <Field label="Company"><Input value={document.clientCompany} onChange={(event) => updateDocument("clientCompany", event.target.value)} placeholder="Client company" /></Field>
-              <Field label="Email"><Input type="email" value={document.clientEmail} onChange={(event) => updateDocument("clientEmail", event.target.value)} /></Field>
-              <Field label="Phone"><Input value={document.clientPhone} onChange={(event) => updateDocument("clientPhone", event.target.value)} /></Field>
-              <Field label="Client reference / project"><Input value={document.reference} onChange={(event) => updateDocument("reference", event.target.value)} /></Field>
-              <Field label="Client address"><Input value={document.clientAddress} onChange={(event) => updateDocument("clientAddress", event.target.value)} /></Field>
-            </div>
-          </div>
-
-          <div className="space-y-4 rounded-xl border border-border bg-background p-4">
-            <div className="flex items-center justify-between gap-3 border-b border-border pb-3"><h3 className="text-sm font-semibold">Items &amp; services</h3><Button type="button" variant="outline" size="sm" onClick={() => updateDocument("items", [...document.items, { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0 }])}><Plus className="mr-1.5 h-3.5 w-3.5" />Add item</Button></div>
-            <div className="space-y-3">
-              {document.items.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-2 gap-2 rounded-lg border border-border p-3 sm:grid-cols-[minmax(0,1fr)_80px_120px_36px] sm:items-end">
-                  <div className="col-span-2 space-y-1.5 sm:col-span-1"><Label className="text-xs text-muted-foreground">Description {index + 1}</Label><Input value={item.description} onChange={(event) => updateItem(item.id, "description", event.target.value)} placeholder="Service or item" /></div>
-                  <div className="space-y-1.5"><Label className="text-xs text-muted-foreground">Qty</Label><Input type="number" min="0" step="any" value={item.quantity} onChange={(event) => updateItem(item.id, "quantity", event.target.value)} /></div>
-                  <div className="space-y-1.5"><Label className="text-xs text-muted-foreground">Unit price</Label><Input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(event) => updateItem(item.id, "unitPrice", event.target.value)} /></div>
-                  <Button type="button" variant="ghost" size="icon" aria-label={`Remove item ${index + 1}`} disabled={document.items.length === 1} onClick={() => updateDocument("items", document.items.filter((entry) => entry.id !== item.id))}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-              ))}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Field label="Discount (%)"><Input type="number" min="0" max="100" step="0.01" value={document.discountPercent} onChange={(event) => updateDocument("discountPercent", Math.min(100, Math.max(0, numberValue(event.target.value))))} /></Field>
-              <Field label="Tax / VAT (%)"><Input type="number" min="0" step="0.01" value={document.taxPercent} onChange={(event) => updateDocument("taxPercent", Math.max(0, numberValue(event.target.value)))} /></Field>
-              {!isQuotation && <Field label="Amount paid"><Input type="number" min="0" step="0.01" value={document.paidAmount} onChange={(event) => updateDocument("paidAmount", Math.max(0, numberValue(event.target.value)))} /></Field>}
-            </div>
-          </div>
-
-          <div className="space-y-3 rounded-xl border border-border bg-background p-4">
-            <Field label="Notes"><Textarea rows={2} value={document.notes} onChange={(event) => updateDocument("notes", event.target.value)} placeholder="Optional message for your client" /></Field>
-            <Field label="Terms & conditions"><Textarea rows={3} value={document.terms} onChange={(event) => updateDocument("terms", event.target.value)} /></Field>
-          </div>
-        </section>
-
-        <div className="document-generator-preview min-w-0 overflow-x-auto rounded-xl bg-stone-100 p-3 sm:p-5">
-          <article ref={sheetRef} id="pwd-document-sheet" className="pwd-document-sheet">
-            <div className="pwd-document-accent" />
-            <header className="pwd-document-header">
-              <div className="pwd-company-block">
-                {logoSource && <img className="pwd-company-logo" src={logoSource} alt={`${company.name} logo`} />}
+        {/* Live Preview Paper */}
+        <div className="lg:col-span-2">
+          <div className="p-8 md:p-12 border rounded-xl bg-card shadow-lg print:border-none print:shadow-none print:p-0 space-y-8 min-h-[600px] flex flex-col justify-between">
+            {/* Header */}
+            <div>
+              <div className="flex justify-between items-start border-b pb-6">
                 <div>
-                  <h2 className="pwd-company-name">{company.name || "Your Business Name"}</h2>
-                  {company.registration && <p className="pwd-company-line">Registration: {company.registration}</p>}
-                  {[company.address, company.phone, company.email, company.website].filter(Boolean).map((line) => <p className="pwd-company-line" key={line}>{line}</p>)}
+                  <h1 className="text-2xl font-black text-primary tracking-wide">PASSIONWORLD DESIGNS</h1>
+                  <p className="text-xs text-muted-foreground mt-1">Creative Studio &amp; Software Solutions</p>
+                  <p className="text-xs text-muted-foreground">Windhoek, Namibia</p>
+                  <p className="text-xs text-muted-foreground">pwdinnovate@hotmail.com</p>
+                </div>
+                <div className="text-right">
+                  <h2 className="text-3xl font-extrabold uppercase text-foreground">{docType}</h2>
+                  <p className="text-sm font-semibold text-primary mt-1">#{docNumber}</p>
+                  <p className="text-xs text-muted-foreground">Date: {docDate}</p>
                 </div>
               </div>
-              <div className="pwd-document-title-block">
-                <p className="pwd-document-eyebrow">Passion World Designs</p>
-                <h1>{isQuotation ? "QUOTATION" : "INVOICE"}</h1>
-                {!isQuotation && <span className={`pwd-status pwd-status-${document.status.toLowerCase().replaceAll(" ", "-")}`}>{document.status}</span>}
+
+              {/* Bill To */}
+              <div className="my-6">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">Billed To:</span>
+                <p className="font-bold text-foreground">{clientName || "Valued Client"}</p>
+                {clientEmail && <p className="text-sm text-muted-foreground">{clientEmail}</p>}
               </div>
-            </header>
 
-            <section className="pwd-document-meta">
-              <div className="pwd-bill-to">
-                <p className="pwd-section-label">{isQuotation ? "QUOTATION FOR" : "BILL TO"}</p>
-                <p className="pwd-client-name">{document.clientCompany || document.clientName || "Client name"}</p>
-                {document.clientCompany && document.clientName && <p>{document.clientName}</p>}
-                {document.clientAddress && <p>{document.clientAddress}</p>}
-                {document.clientEmail && <p>{document.clientEmail}</p>}
-                {document.clientPhone && <p>{document.clientPhone}</p>}
-                {document.reference && <p className="pwd-reference">Reference: {document.reference}</p>}
+              {/* Items Table */}
+              <div className="border rounded-lg overflow-hidden my-6">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted text-muted-foreground font-semibold">
+                    <tr>
+                      <th className="p-3">Description</th>
+                      <th className="p-3 w-20 text-center">Qty</th>
+                      <th className="p-3 w-28 text-right">Rate ($)</th>
+                      <th className="p-3 w-28 text-right">Amount ($)</th>
+                      <th className="p-3 w-12 text-center print:hidden"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {items.map((item) => (
+                      <tr key={item.id}>
+                        <td className="p-3">
+                          <Input
+                            value={item.description}
+                            onChange={(e) => updateItem(item.id, "description", e.target.value)}
+                            className="h-8 text-sm border-none shadow-none focus-visible:ring-1"
+                          />
+                        </td>
+                        <td className="p-3 text-center">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => updateItem(item.id, "quantity", Number(e.target.value))}
+                            className="h-8 text-sm text-center w-16 mx-auto border-none shadow-none focus-visible:ring-1"
+                          />
+                        </td>
+                        <td className="p-3 text-right">
+                          <Input
+                            type="number"
+                            value={item.rate}
+                            onChange={(e) => updateItem(item.id, "rate", Number(e.target.value))}
+                            className="h-8 text-sm text-right w-24 ml-auto border-none shadow-none focus-visible:ring-1"
+                          />
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          ${(item.quantity * item.rate).toLocaleString()}
+                        </td>
+                        <td className="p-3 text-center print:hidden">
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="text-muted-foreground hover:text-destructive p-1 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <dl className="pwd-document-facts">
-                <div><dt>{isQuotation ? "Quotation no." : "Invoice no."}</dt><dd>{document.documentNumber || "—"}</dd></div>
-                <div><dt>Issue date</dt><dd>{formatDate(document.issueDate)}</dd></div>
-                <div><dt>{isQuotation ? "Valid until" : "Due date"}</dt><dd>{formatDate(document.dueDate)}</dd></div>
-                <div><dt>Currency</dt><dd>{document.currency}</dd></div>
-              </dl>
-            </section>
 
-            <table className="pwd-document-table">
-              <thead><tr><th className="pwd-item-number">#</th><th>Description</th><th className="pwd-quantity">Qty</th><th className="pwd-unit-price">Unit price</th><th className="pwd-amount">Amount ({document.currency})</th></tr></thead>
-              <tbody>
-                {document.items.map((item, index) => <tr key={item.id}><td className="pwd-item-number">{index + 1}</td><td>{item.description || "—"}</td><td className="pwd-quantity">{item.quantity}</td><td className="pwd-unit-price">{formatMoney(item.unitPrice, document.currency)}</td><td className="pwd-amount">{formatMoney(item.quantity * item.unitPrice, document.currency)}</td></tr>)}
-              </tbody>
-            </table>
-
-            <section className="pwd-totals">
-              <div className="pwd-total-row"><span>Subtotal</span><strong>{formatMoney(totals.subtotal, document.currency)}</strong></div>
-              {document.discountPercent !== 0 && <div className="pwd-total-row"><span>Discount ({document.discountPercent}%)</span><strong>− {formatMoney(totals.discount, document.currency)}</strong></div>}
-              {document.taxPercent !== 0 && <div className="pwd-total-row"><span>Tax / VAT ({document.taxPercent}%)</span><strong>{formatMoney(totals.tax, document.currency)}</strong></div>}
-              <div className="pwd-grand-total"><span>{isQuotation ? "TOTAL QUOTED" : "TOTAL DUE"}</span><strong>{formatMoney(isQuotation ? totals.total : totals.balance, document.currency)}</strong></div>
-              {!isQuotation && <div className="pwd-total-row pwd-paid-row"><span>Invoice total · Paid</span><strong>{formatMoney(totals.total, document.currency)} · {formatMoney(document.paidAmount, document.currency)}</strong></div>}
-            </section>
-
-            <section className="pwd-document-bottom">
-              <div className="pwd-document-notes">
-                {document.notes && <div><h3>Notes</h3><p>{document.notes}</p></div>}
-                {document.terms && <div><h3>Terms &amp; conditions</h3><p>{document.terms}</p></div>}
-                {company.paymentDetails && <div><h3>Payment details</h3><p>{company.paymentDetails}</p></div>}
+              <div className="flex justify-between items-center print:hidden mb-6">
+                <Button variant="outline" size="sm" onClick={addItem}>
+                  <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Line Item
+                </Button>
               </div>
-              <div className="pwd-signature-block">
-                {signatureSource ? <img className="pwd-signature-image" src={signatureSource} alt="Authorized signature" /> : <div className="pwd-signature-space" />}
-                <div className="pwd-signature-rule" />
-                <p className="pwd-signatory-name">{company.signatory || "Authorized signatory"}</p>
-                <p>{company.signatoryTitle}</p>
-              </div>
-            </section>
 
-            <footer className="pwd-document-footer">
-              <span>{company.name || "Passion World Designs"}</span>
-              <span>{company.email}{company.phone ? `  ·  ${company.phone}` : ""}</span>
-            </footer>
-          </article>
+              {/* Total Breakdown */}
+              <div className="flex justify-end pt-4 border-t">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="font-semibold">${subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-bold border-t pt-2 text-primary">
+                    <span>Total Due:</span>
+                    <span>${subtotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer notes */}
+            <div className="border-t pt-6 text-xs text-muted-foreground">
+              <p className="font-semibold text-foreground mb-1">Terms &amp; Notes:</p>
+              <p className="whitespace-pre-wrap">{notes}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
-const documentCss = `
-.pwd-document-sheet{box-sizing:border-box;width:100%;max-width:210mm;min-height:297mm;margin:0 auto;padding:13mm;background:#fff;color:#28251f;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;box-shadow:0 14px 38px rgba(35,29,18,.12)}
-.pwd-document-accent{height:6px;margin:-13mm -13mm 9mm;background:#b5934e}
-.pwd-document-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:17px;border-bottom:1px solid #dedbd3}
-.pwd-company-block{display:flex;align-items:center;gap:14px;min-width:0}
-.pwd-company-logo{width:83px;height:76px;flex:none;object-fit:contain}
-.pwd-company-name{margin:0 0 4px;font-size:16px;line-height:1.2;font-weight:700;letter-spacing:.02em;color:#171613}
-.pwd-company-line{margin:1px 0;color:#615d54;font-size:9px;overflow-wrap:anywhere}
-.pwd-document-title-block{text-align:right;white-space:nowrap}
-.pwd-document-eyebrow{margin:0 0 4px;color:#827552;font-size:8px;letter-spacing:.16em;text-transform:uppercase}
-.pwd-document-title-block h1{margin:0;color:#a17d34;font-size:25px;line-height:1.1;letter-spacing:.08em}
-.pwd-status{display:inline-block;margin-top:7px;padding:3px 9px;border-radius:20px;background:#eee9de;color:#65572f;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.pwd-status-paid{background:#e5f2e9;color:#27613a}.pwd-status-unpaid{background:#f8e7e4;color:#99463d}.pwd-status-partially-paid{background:#fbf0d9;color:#805f1d}
-.pwd-document-meta{display:grid;grid-template-columns:1fr minmax(190px,.8fr);gap:20px;padding:20px 0 22px}
-.pwd-bill-to p{margin:2px 0;color:#5f5b53;font-size:9px;white-space:pre-wrap;overflow-wrap:anywhere}
-.pwd-section-label{margin:0 0 8px!important;color:#997738!important;font-size:8px!important;font-weight:700;letter-spacing:.16em}
-.pwd-client-name{color:#25231f!important;font-size:12px!important;font-weight:700}
-.pwd-reference{padding-top:4px;font-weight:600}
-.pwd-document-facts{margin:0;display:grid;grid-template-columns:1fr auto;align-content:start;gap:7px 12px}
-.pwd-document-facts div{display:contents}
-.pwd-document-facts dt{color:#777168;font-size:9px}
-.pwd-document-facts dd{margin:0;text-align:right;font-size:9px;font-weight:700;overflow-wrap:anywhere}
-.pwd-document-table{width:100%;border-collapse:collapse;table-layout:fixed}
-.pwd-document-table th{padding:9px 7px;background:#171715;color:#e4c77f;text-align:left;font-size:8px;font-weight:700;letter-spacing:.04em}
-.pwd-document-table td{padding:10px 7px;border-bottom:1px solid #e7e4dc;vertical-align:top;overflow-wrap:anywhere;font-size:9px}
-.pwd-document-table tbody tr:nth-child(even){background:#fbfaf7}
-.pwd-document-table .pwd-item-number{width:7%;text-align:center}
-.pwd-document-table .pwd-quantity{width:10%;text-align:center}
-.pwd-document-table .pwd-unit-price{width:20%;text-align:right}
-.pwd-document-table .pwd-amount{width:23%;text-align:right;font-weight:600}
-.pwd-totals{width:min(100%,290px);margin:16px 0 0 auto}
-.pwd-total-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;color:#5e5a52;font-size:9px}
-.pwd-total-row strong{color:#302d27;text-align:right;font-weight:600}
-.pwd-grand-total{display:flex;justify-content:space-between;gap:12px;margin-top:5px;padding:11px 12px;background:#f1e5c8;color:#28251f;font-size:9px;font-weight:700;letter-spacing:.04em}
-.pwd-grand-total strong{font-size:13px;white-space:nowrap}
-.pwd-paid-row{font-size:8px}
-.pwd-document-bottom{display:grid;grid-template-columns:1fr minmax(145px,.58fr);gap:26px;margin-top:30px;align-items:end}
-.pwd-document-notes{display:grid;gap:13px}
-.pwd-document-notes h3{margin:0 0 4px;color:#8e6f32;font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.pwd-document-notes p{margin:0;color:#5e5a52;font-size:9px;white-space:pre-wrap;overflow-wrap:anywhere}
-.pwd-signature-block{text-align:center;color:#656057;font-size:8px}
-.pwd-signature-image{display:block;width:100%;height:46px;margin:0 auto 3px;object-fit:contain;object-position:center bottom}
-.pwd-signature-space{height:49px}
-.pwd-signature-rule{height:1px;background:#8a857a}
-.pwd-signatory-name{margin:5px 0 0;color:#28251f;font-size:9px;font-weight:700}
-.pwd-signature-block p:last-child{margin:1px 0}
-.pwd-document-footer{display:flex;justify-content:space-between;gap:12px;margin-top:35px;padding-top:9px;border-top:1px solid #d8d4ca;color:#777168;font-size:8px}
-@media screen and (max-width:640px){.pwd-document-sheet{padding:7mm;font-size:10px}.pwd-document-accent{margin:-7mm -7mm 7mm}.pwd-document-header{gap:8px}.pwd-company-block{gap:7px}.pwd-company-logo{width:52px;height:58px}.pwd-company-name{font-size:12px}.pwd-company-line{font-size:8px}.pwd-document-title-block h1{font-size:18px}.pwd-document-eyebrow{font-size:8px}.pwd-document-meta{grid-template-columns:1fr;gap:12px}.pwd-document-facts{grid-template-columns:1fr 1fr}.pwd-document-facts dd{text-align:left}.pwd-document-table th{padding:7px 3px;font-size:8px}.pwd-document-table td{padding:7px 3px;font-size:9px}.pwd-document-table .pwd-unit-price{width:21%}.pwd-document-table .pwd-amount{width:25%}.pwd-document-bottom{grid-template-columns:1fr;gap:18px}.pwd-signature-block{max-width:190px;margin-left:auto}.pwd-document-footer{font-size:8px}}
-@page{size:A4 portrait;margin:0}
-@media print{
-  html,body,#root{width:210mm!important;height:297mm!important;min-height:0!important;max-height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
-  body{position:relative!important}
-  body *{visibility:hidden!important}
-  .document-generator,.document-generator>*{display:contents!important}
-  .document-generator-preview{overflow:visible!important}
-  .pwd-document-sheet,.pwd-document-sheet *{visibility:visible!important}
-  .pwd-document-sheet{position:absolute!important;left:0!important;top:0!important;width:210mm!important;max-width:none!important;min-height:297mm!important;margin:0!important;padding:10mm!important;box-sizing:border-box!important;border:0!important;border-radius:0!important;box-shadow:none!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-  .pwd-document-accent{margin:-10mm -10mm 7mm!important}
-  .pwd-company-line,.pwd-bill-to p,.pwd-document-facts dt,.pwd-document-facts dd,.pwd-document-table td,.pwd-total-row,.pwd-grand-total,.pwd-document-notes p{font-size:10px!important}
-  .pwd-document-eyebrow,.pwd-section-label,.pwd-document-table th,.pwd-document-notes h3,.pwd-signature-block,.pwd-document-footer{font-size:9px!important}
-  .document-generator-intro,.document-generator-editor{display:none!important}
-  .pwd-document-table tr,.pwd-totals,.pwd-document-bottom{break-inside:avoid}
-}
-`;
 
 export default DocumentGenerator;

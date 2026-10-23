@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,14 +10,29 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from 'lucide-react';
+import { Info, ArrowRight } from 'lucide-react';
 import { projectPlannerConfig as defaultConfig, ProjectPlannerConfig } from '@/data/projectPlannerConfig';
+
+interface StepData {
+  websiteType: string;
+  pages: number;
+  features: string[];
+  design: string;
+}
+
+interface StepComponentProps {
+  data: StepData;
+  setData: React.Dispatch<React.SetStateAction<StepData>>;
+  config: ProjectPlannerConfig;
+  estimate?: number;
+  reset?: () => void;
+}
 
 // Define the structure for each step in the planner
 interface Step {
   id: string;
   title: string;
-  component: React.FC<any>;
+  component: React.ComponentType<StepComponentProps>;
 }
 
 // Pass the config to each step
@@ -155,8 +171,18 @@ const SummaryStep = ({ data, estimate, reset, config }) => (
             <p className="text-xs text-muted-foreground mt-2">This is a non-binding estimate. Prices may vary.</p>
         </div>
 
-        <div className="text-center mt-8">
-            <Button onClick={reset}>Start Over</Button>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <Button
+                asChild
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md flex items-center gap-2"
+            >
+                <Link to={`/start-project?service=website&budget=${estimate > 5000 ? 'over-5000' : estimate > 1500 ? '1500-5000' : '500-1500'}&type=${encodeURIComponent(data.websiteType)}&pages=${data.pages}`}>
+                    Proceed with this Estimate <ArrowRight className="h-4 w-4" />
+                </Link>
+            </Button>
+            <Button variant="outline" onClick={reset} className="w-full sm:w-auto">
+                Start Over
+            </Button>
         </div>
     </div>
 );

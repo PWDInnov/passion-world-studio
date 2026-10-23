@@ -1,7 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { ArrowRight, CheckCircle2, Clock3, DollarSign, Loader2, Send, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
@@ -46,8 +46,22 @@ const timelineOptions = [
 ];
 
 const StartProject = () => {
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [budget, setBudget] = useState("");
+  const [searchParams] = useSearchParams();
+  const initialService = searchParams.get("service");
+  const initialBudget = searchParams.get("budget");
+
+  const [selectedServices, setSelectedServices] = useState<string[]>(() => {
+    if (initialService && serviceOptions.some((s) => s.id === initialService)) {
+      return [initialService];
+    }
+    return [];
+  });
+  const [budget, setBudget] = useState(() => {
+    if (initialBudget && budgetOptions.some((b) => b.value === initialBudget)) {
+      return initialBudget;
+    }
+    return "";
+  });
   const [timeline, setTimeline] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -116,8 +130,8 @@ const StartProject = () => {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <SEO
-        title="Start a Project | PassionWorld Designs"
-        description="Tell PassionWorld Designs about your project and receive a tailored starting estimate."
+        title="Start Your Project – Request a Quote | PassionWorld Designs"
+        description="Tell us about your project vision, features, and timeline to receive a clear scope, roadmap, and starting cost estimate from our creative team."
         canonical="/start-project"
       />
       <Header />

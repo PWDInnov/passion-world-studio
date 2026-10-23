@@ -5,8 +5,8 @@ const ProjectPlannerPage = () => {
   return (
     <div>
       <SEO
-        title="Project Planner | PassionWorld Designs"
-        description="Plan your website, branding, graphic design, software, or digital marketing project with PassionWorld Designs."
+        title="Interactive Project Planner & Cost Calculator | PassionWorld Designs"
+        description="Plan your custom website, app, or branding project step-by-step. Select your features and calculate an instant realistic cost estimate online."
         canonical="/tools/project-planner"
       />
       <ProjectPlanner />

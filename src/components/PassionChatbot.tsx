@@ -88,10 +88,22 @@ const conversationTree = {
   },
 };
 
+interface ChatOption {
+  label: string;
+  next?: string;
+  url?: string;
+}
+
+interface ChatMessage {
+  sender: 'bot' | 'user';
+  text: string;
+  options?: ChatOption[];
+}
+
 const PassionChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentNode, setCurrentNode] = useState('start');
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
   const startConversation = (node = 'start') => {
@@ -103,7 +115,7 @@ const PassionChatbot = () => {
         options: conversationTree[node].options,
       },
     ]);
-  }
+  };
 
   useEffect(() => {
     startConversation();
@@ -113,8 +125,8 @@ const PassionChatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleOptionClick = (option: any) => {
-    const userMessage = { sender: 'user', text: option.label };
+  const handleOptionClick = (option: ChatOption) => {
+    const userMessage: ChatMessage = { sender: 'user', text: option.label };
     
     // Special handling for 'Back to start' to use the restart flow
     if (option.next === 'start') {

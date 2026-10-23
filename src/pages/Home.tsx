@@ -80,6 +80,7 @@ const Home = () => {
             loop
             muted
             playsInline
+            preload="metadata"
             poster="/hero-background.jpg"
             aria-hidden="true"
             className="absolute top-0 left-0 w-full h-full object-cover z-0"

@@ -128,8 +128,8 @@ const Vacancies = () => {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <SEO
-        title="Careers at PassionWorld Designs"
-        description="Explore creative, design, development, marketing, and technical career opportunities at PassionWorld Designs."
+        title="Careers & Creative Job Openings | PassionWorld Designs"
+        description="Join our dynamic creative team. Explore current career openings in graphic design, mobile app engineering, web development, and digital marketing."
         canonical="/vacancies"
       />
       <Header />

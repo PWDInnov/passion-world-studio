@@ -37,8 +37,8 @@ const Services = () => {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <SEO
-        title="Graphic Design & Mobile App Development Services | PassionWorld Designs"
-        description="Explore graphic design, logo and brand identity, mobile app development, websites, custom software, digital marketing, and printing services."
+        title="Design, Branding & Software Services | PassionWorld Designs"
+        description="Explore comprehensive creative services including graphic design, logo branding, iOS & Android app development, custom web solutions, and digital marketing."
         canonical="/services"
         structuredData={serviceSchema}
       />

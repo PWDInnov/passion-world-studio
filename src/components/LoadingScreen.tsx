@@ -6,11 +6,16 @@ const LoadingScreen = ({ onLoaded }: { onLoaded: () => void }) => {
   const [progress, setProgress] = useState(1);
 
   useEffect(() => {
+    if (progress >= 100) {
+      onLoaded();
+    }
+  }, [progress, onLoaded]);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setProgress((prevProgress) => {
         if (prevProgress >= 100) {
           clearInterval(timer);
-          onLoaded();
           return 100;
         }
         return prevProgress + 1;
@@ -18,7 +23,7 @@ const LoadingScreen = ({ onLoaded }: { onLoaded: () => void }) => {
     }, 60); // Adjust interval for loading speed
 
     return () => clearInterval(timer);
-  }, [onLoaded]);
+  }, []);
   
   // Background animation elements
     const circles = Array.from({ length: 15 });

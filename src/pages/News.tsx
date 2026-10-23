@@ -29,8 +29,8 @@ const NewsPage = () => {
     return (
         <div className="min-h-screen flex flex-col">
             <SEO
-                title="News and Updates | PassionWorld Designs"
-                description="News, project updates, design insights, and announcements from PassionWorld Designs."
+                title="Latest Studio News & Announcements | PassionWorld Designs"
+                description="Stay updated with recent product launches, feature updates, studio announcements, client achievements, and creative milestones from our team."
                 canonical="/news"
             />
             <Header />

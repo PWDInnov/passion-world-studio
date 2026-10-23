@@ -5,8 +5,27 @@ import BeforeAfter from "@/components/BeforeAfter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 import SEO from "@/components/SEO";
+
+const PortfolioSkeletonGrid = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div key={i} className="rounded-xl border bg-card overflow-hidden shadow-sm">
+        <Skeleton className="aspect-[4/3] w-full" />
+        <div className="p-6 space-y-3">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-2/3" />
+          <div className="flex gap-2 pt-2">
+            <Skeleton className="h-5 w-16 rounded-full" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const Portfolio = () => {
   const { docs: portfolioItems, loading } = useFirestore('portfolio');
@@ -16,8 +35,8 @@ const Portfolio = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <SEO
-        title="Graphic Design, Branding & Website Portfolio | PassionWorld Designs"
-        description="Browse PassionWorld Designs projects across graphic design, branding, website development, mobile apps, and digital experiences."
+        title="Our Work & Design Portfolio Showcase | PassionWorld Designs"
+        description="Browse our creative portfolio featuring recent branding, graphic design, mobile app development, and bespoke website projects crafted with passion."
         canonical="/portfolio"
       />
       <Header />
@@ -42,7 +61,7 @@ const Portfolio = () => {
             </TabsList>
             
             {loading ? (
-                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" size={36} /></div>
+              <PortfolioSkeletonGrid />
             ) : (
                 filterOptions.map((filter) => (
                 <TabsContent key={filter} value={filter}>

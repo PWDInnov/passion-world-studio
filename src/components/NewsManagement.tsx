@@ -1,164 +1,216 @@
-import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from 'firebase/firestore';
-import { db as firestore } from '../firebase';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Loader2, PlusCircle, Pencil, Trash, Image as ImageIcon, Video } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy } from "firebase/firestore";
+import { db } from "@/firebase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { Plus, Pencil, Trash, Newspaper, Calendar, Link as LinkIcon } from "lucide-react";
+
+interface NewsItem {
+  id?: string;
+  title: string;
+  content: string;
+  date: string;
+  mediaUrl?: string;
+  mediaType?: "image" | "video";
+}
 
 const NewsManagement = () => {
-    const [news, setNews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [form, setForm] = useState({ title: '', excerpt: '', content: '', mediaUrl: '', mediaType: 'image' });
-    const [editingId, setEditingId] = useState(null);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-    const newsCollection = collection(firestore, 'news');
+  // Form fields
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaType, setMediaType] = useState<"image" | "video">("image");
 
-    const fetchNews = async () => {
-        setLoading(true);
-        const q = query(newsCollection, orderBy("date", "desc"));
-        const newsSnapshot = await getDocs(q);
-        const newsList = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setNews(newsList);
-        setLoading(false);
-    };
+  const fetchNews = async () => {
+    try {
+      setLoading(true);
+      const q = query(collection(db, "news"), orderBy("date", "desc"));
+      const snapshot = await getDocs(q);
+      const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as NewsItem));
+      setNews(list);
+    } catch (err: unknown) {
+      console.error("Error fetching news:", err);
+      // Fallback without ordering
+      const snapshot = await getDocs(collection(db, "news"));
+      const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as NewsItem));
+      setNews(list);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        fetchNews();
-    }, []);
+  useEffect(() => {
+    fetchNews();
+  }, []);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
-    };
-    
-    const handleMediaTypeChange = (value) => {
-        setForm({ ...form, mediaType: value });
-    };
+  const handleOpenForm = (item?: NewsItem) => {
+    if (item) {
+      setEditingItem(item);
+      setTitle(item.title || "");
+      setContent(item.content || "");
+      setMediaUrl(item.mediaUrl || "");
+      setMediaType(item.mediaType || "image");
+    } else {
+      setEditingItem(null);
+      setTitle("");
+      setContent("");
+      setMediaUrl("");
+      setMediaType("image");
+    }
+    setIsFormOpen(true);
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const dataToSave = {
-            ...form,
-            mediaUrl: form.mediaUrl || '', // ensure it's not null/undefined
-            mediaType: form.mediaUrl ? form.mediaType : 'none', // if no url, no media type
-        };
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        title,
+        content,
+        mediaUrl: mediaUrl || "",
+        mediaType,
+        date: editingItem?.date || new Date().toISOString(),
+        updatedAt: serverTimestamp(),
+      };
 
-        if (editingId) {
-            const docRef = doc(firestore, 'news', editingId);
-            await updateDoc(docRef, dataToSave);
-        } else {
-            await addDoc(newsCollection, { ...dataToSave, date: serverTimestamp() });
-        }
-        handleCancel();
-        fetchNews();
-    };
-
-    const handleEdit = (item) => {
-        setForm({
-            title: item.title || '',
-            excerpt: item.excerpt || '',
-            content: item.content || '',
-            mediaUrl: item.mediaUrl || '',
-            mediaType: item.mediaType || 'image',
+      if (editingItem?.id) {
+        await updateDoc(doc(db, "news", editingItem.id), payload);
+        toast({ title: "News article updated!" });
+      } else {
+        await addDoc(collection(db, "news"), {
+          ...payload,
+          createdAt: serverTimestamp(),
         });
-        setEditingId(item.id);
-        setIsFormOpen(true);
-    };
+        toast({ title: "News article published!" });
+      }
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this news item?")) {
-            await deleteDoc(doc(firestore, 'news', id));
-            fetchNews();
-        }
-    };
-    
-    const handleCancel = () => {
-        setIsFormOpen(false);
-        setEditingId(null);
-        setForm({ title: '', excerpt: '', content: '', mediaUrl: '', mediaType: 'image' });
-    };
-
-    if (loading) {
-        return <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" size={32} /></div>;
+      setIsFormOpen(false);
+      fetchNews();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save news article";
+      toast({ title: "Error", description: msg, variant: "destructive" });
     }
+  };
 
-    if (isFormOpen) {
-        return (
-            <div>
-                <h3 className="text-lg font-bold mb-4">{editingId ? 'Edit' : 'Add'} News Item</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input name="title" value={form.title} onChange={handleInputChange} placeholder="Title" required />
-                    <Textarea name="excerpt" value={form.excerpt} onChange={handleInputChange} placeholder="Excerpt (short summary)" required />
-                    <Textarea name="content" value={form.content} onChange={handleInputChange} placeholder="Full news content (uses the excerpt if blank)" />
-
-                    <div className="p-4 border rounded-lg space-y-4">
-                        <Label>Media (Optional)</Label>
-                        <Input name="mediaUrl" value={form.mediaUrl} onChange={handleInputChange} placeholder="Image or Video URL" />
-                        {form.mediaUrl && (
-                            <RadioGroup value={form.mediaType} onValueChange={handleMediaTypeChange} className="flex items-center gap-4">
-                                <Label htmlFor="media-image" className="flex items-center gap-2 cursor-pointer"><RadioGroupItem value="image" id="media-image" />Image</Label>
-                                <Label htmlFor="media-video" className="flex items-center gap-2 cursor-pointer"><RadioGroupItem value="video" id="media-video" />Video</Label>
-                            </RadioGroup>
-                        )}
-                    </div>
-
-                    <div className="flex gap-2">
-                        <Button type="submit">{editingId ? 'Update News' : 'Add News'}</Button>
-                        <Button variant="outline" type="button" onClick={handleCancel}>Cancel</Button>
-                    </div>
-                </form>
-            </div>
-        );
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this article?")) return;
+    try {
+      await deleteDoc(doc(db, "news", id));
+      setNews((prev) => prev.filter((item) => item.id !== id));
+      toast({ title: "Article deleted" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete article";
+      toast({ title: "Error", description: msg, variant: "destructive" });
     }
+  };
 
-    return (
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold">News Items</h3>
-                <Button onClick={() => setIsFormOpen(true)}><PlusCircle className="mr-2" size={16} />Add News</Button>
-            </div>
-            {news.length === 0 ? (
-                 <p className="text-muted-foreground text-center p-8">No news items yet. Click "Add News" to create one.</p>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {news.map(item => (
-                        <Card key={item.id}>
-                            <CardContent className="p-4">
-                                {item.mediaUrl && (
-                                    <div className="aspect-video bg-muted rounded-md mb-4 overflow-hidden flex items-center justify-center">
-                                        {item.mediaType === 'image' ? (
-                                            <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
-                                        ) : item.mediaType === 'video' ? (
-                                            <video src={item.mediaUrl} className="w-full h-full object-cover" playsInline muted loop controls />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center text-muted-foreground">
-                                                <ImageIcon size={40} />
-                                                <p>Media</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                <h4 className="font-bold mb-2">{item.title}</h4>
-                                <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{item.excerpt}</p>
-                                <p className="text-xs text-muted-foreground mb-4">
-                                    {item.date?.seconds ? new Date(item.date.seconds * 1000).toLocaleDateString() : 'Just now'}
-                                </p>
-                                <div className="flex justify-end gap-2">
-                                    <Button variant="outline" size="icon" onClick={() => handleEdit(item)}><Pencil size={14} /></Button>
-                                    <Button variant="destructive" size="icon" onClick={() => handleDelete(item.id)}><Trash size={14} /></Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
+          <h3 className="text-xl font-bold">News &amp; Studio Announcements</h3>
+          <p className="text-xs text-muted-foreground">Manage studio news, releases, and milestones.</p>
         </div>
-    );
+        {!isFormOpen && (
+          <Button onClick={() => handleOpenForm()}>
+            <Plus className="w-4 h-4 mr-2" /> Add News Article
+          </Button>
+        )}
+      </div>
+
+      {isFormOpen ? (
+        <form onSubmit={handleSave} className="p-6 border rounded-xl bg-card space-y-4">
+          <h4 className="font-bold text-lg">{editingItem ? "Edit News" : "New Article"}</h4>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Title *</label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-1">Article Content *</label>
+            <Textarea value={content} onChange={(e) => setContent(e.target.value)} rows={4} required />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Media URL (Image / Video)</label>
+              <Input
+                type="url"
+                value={mediaUrl}
+                onChange={(e) => setMediaUrl(e.target.value)}
+                placeholder="https://example.com/photo.jpg"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1">Media Type</label>
+              <select
+                className="w-full border rounded-md px-3 py-2 bg-background text-sm"
+                value={mediaType}
+                onChange={(e) => setMediaType(e.target.value as "image" | "video")}
+              >
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-3 border-t">
+            <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Save Article</Button>
+          </div>
+        </form>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {news.length === 0 && !loading && (
+            <p className="text-sm text-muted-foreground col-span-3 text-center py-10">No news articles yet.</p>
+          )}
+          {news.map((item) => (
+            <Card key={item.id} className="overflow-hidden border bg-card flex flex-col justify-between">
+              <div>
+                {item.mediaUrl && (
+                  <div className="aspect-video bg-muted overflow-hidden">
+                    {item.mediaType === "video" ? (
+                      <video src={item.mediaUrl} className="w-full h-full object-cover" controls />
+                    ) : (
+                      <img src={item.mediaUrl} alt={item.title} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                )}
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{new Date(item.date).toLocaleDateString()}</span>
+                  </div>
+                  <h4 className="font-bold text-base mb-2">{item.title}</h4>
+                  <p className="text-sm text-muted-foreground line-clamp-3">{item.content}</p>
+                </CardContent>
+              </div>
+
+              <div className="p-4 pt-0 border-t flex justify-end gap-2 mt-4">
+                <Button variant="outline" size="sm" onClick={() => handleOpenForm(item)}>
+                  <Pencil size={14} />
+                </Button>
+                {item.id && (
+                  <Button variant="destructive" size="sm" onClick={() => handleDelete(item.id!)}>
+                    <Trash size={14} />
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default NewsManagement;

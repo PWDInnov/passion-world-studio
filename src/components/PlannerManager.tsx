@@ -1,165 +1,153 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "@/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash, PlusCircle } from 'lucide-react';
-import { projectPlannerConfig as defaultConfig, ProjectPlannerConfig } from '@/data/projectPlannerConfig';
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../firebase";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
+import { projectPlannerConfig as defaultConfig, ProjectPlannerConfig } from "@/data/projectPlannerConfig";
+import { DollarSign, Save, RefreshCw } from "lucide-react";
 
 const PlannerManager = () => {
-  const [config, setConfig] = useState<ProjectPlannerConfig | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-  const configDocRef = doc(db, 'configs', 'projectPlanner');
+  const [config, setConfig] = useState<ProjectPlannerConfig>(defaultConfig);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchConfig = async () => {
-      setIsLoading(true);
       try {
-        const docSnap = await getDoc(configDocRef);
-        if (docSnap.exists()) {
-          setConfig(docSnap.data() as ProjectPlannerConfig);
-        } else {
-          // If no config in DB, use the default and save it to firestore.
-          await setDoc(configDocRef, defaultConfig);
-          setConfig(defaultConfig);
-          toast({
-            title: "Planner Initialized",
-            description: "Default planner settings have been saved to the database.",
-          });
+        setLoading(true);
+        const docRef = doc(db, "siteContent", "plannerConfig");
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          setConfig(snap.data() as ProjectPlannerConfig);
         }
-      } catch (error) {
-        console.error("Error fetching config:", error);
-        toast({
-          title: "Error",
-          description: "Could not load planner configuration. Using local defaults.",
-          variant: "destructive",
-        });
-        setConfig(defaultConfig); // Fallback to default
+      } catch (err: unknown) {
+        console.error("Error fetching planner config:", err);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
     fetchConfig();
-  }, []); // Empty dependency array ensures this runs once on mount
-
-  const handleNestedChange = (category, key, field, value) => {
-    setConfig(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [key]: { ...prev[category][key], [field]: value },
-      },
-    }));
-  };
-  
-  const handlePagePriceChange = (value) => {
-    setConfig(prev => ({ ...prev, pages: { ...prev.pages, price_per_page: value } }));
-  };
-
-  const handleAddItem = (category) => {
-    const newKey = `item_${Date.now()}`;
-    const newItem = category === 'features' 
-      ? { name: "New Feature", price: 0, description: "A great new feature." }
-      : { name: "New Type", price: 0 };
-    setConfig(prev => ({ ...prev, [category]: { ...prev[category], [newKey]: newItem } }));
-  };
-
-  const handleRemoveItem = (category, keyToRemove) => {
-    const { [keyToRemove]: _, ...rest } = config[category];
-    setConfig(prev => ({ ...prev, [category]: rest }));
-  };
+  }, []);
 
   const handleSave = async () => {
-    setIsSaving(true);
     try {
-      await setDoc(configDocRef, config, { merge: true });
-      toast({
-        title: "Success!",
-        description: "Project Planner configuration has been saved.",
-      });
-    } catch (error) {
-      console.error("Failed to save config:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save configuration.",
-        variant: "destructive",
-      });
+      setSaving(true);
+      await setDoc(doc(db, "siteContent", "plannerConfig"), config);
+      toast({ title: "Planner rates and config updated in Firestore!" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save configuration";
+      toast({ title: "Error", description: msg, variant: "destructive" });
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   };
 
-  if (isLoading || !config) {
-    return <div className="p-6 text-center">Loading Planner Configuration...</div>;
-  }
+  const handleResetToDefault = () => {
+    if (window.confirm("Reset all rates to defaults?")) {
+      setConfig(defaultConfig);
+    }
+  };
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h3 className="text-xl font-bold">Interactive Project Planner Rates</h3>
+          <p className="text-xs text-muted-foreground">Adjust baseline prices, page rates, and feature add-ons.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleResetToDefault}>
+            <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Reset Defaults
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={saving}>
+            <Save className="w-3.5 h-3.5 mr-1.5" /> {saving ? "Saving..." : "Save Planner Rates"}
+          </Button>
+        </div>
+      </div>
+
+      {/* Pages Pricing */}
       <Card>
         <CardHeader>
-          <CardTitle>Website Types</CardTitle>
+          <CardTitle className="text-base">Per-Page Baseline Rate</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {Object.entries(config.websiteType).map(([key, item]) => (
-            <div key={key} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center">
-              <Input value={item.name} onChange={e => handleNestedChange('websiteType', key, 'name', e.target.value)} />
-              <Input type="number" value={item.price} onChange={e => handleNestedChange('websiteType', key, 'price', parseFloat(e.target.value))} className="w-32" />
-              <Button variant="destructive" size="icon" onClick={() => handleRemoveItem('websiteType', key)}><Trash size={16} /></Button>
-            </div>
-          ))}
-          <Button onClick={() => handleAddItem('websiteType')}><PlusCircle className="mr-2" size={16}/>Add Type</Button>
+        <CardContent>
+          <div className="flex items-center gap-4 max-w-xs">
+            <label className="text-sm font-medium">Price per additional page ($):</label>
+            <Input
+              type="number"
+              value={config.pages?.price_per_page || 50}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  pages: { price_per_page: Number(e.target.value) },
+                })
+              }
+              className="w-28"
+            />
+          </div>
         </CardContent>
       </Card>
 
+      {/* Website Types */}
       <Card>
-        <CardHeader><CardTitle>Page Pricing</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-            <Label>Price Per Page</Label>
-            <Input type="number" value={config.pages.price_per_page} onChange={e => handlePagePriceChange(parseFloat(e.target.value))} className="max-w-xs"/>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Features</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          {Object.entries(config.features).map(([key, item]) => (
-            <div key={key} className="space-y-3 p-4 border rounded-lg bg-muted/20">
-                <div className="grid grid-cols-[1fr_auto_auto] gap-4 items-center">
-                    <Input placeholder="Feature Name" value={item.name} onChange={e => handleNestedChange('features', key, 'name', e.target.value)} />
-                    <Input placeholder="Price" type="number" value={item.price} onChange={e => handleNestedChange('features', key, 'price', parseFloat(e.target.value))} className="w-32" />
-                    <Button variant="destructive" size="icon" onClick={() => handleRemoveItem('features', key)}><Trash size={16} /></Button>
+        <CardHeader>
+          <CardTitle className="text-base">Website Type Starting Prices</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(config.websiteType || {}).map(([key, item]) => (
+              <div key={key} className="p-4 border rounded-lg bg-card space-y-2">
+                <span className="font-bold text-sm">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Base Price ($):</span>
+                  <Input
+                    type="number"
+                    value={item.price}
+                    onChange={(e) => {
+                      const updated = { ...config.websiteType };
+                      updated[key] = { ...item, price: Number(e.target.value) };
+                      setConfig({ ...config, websiteType: updated });
+                    }}
+                    className="w-28 h-8 text-sm"
+                  />
                 </div>
-                <Input placeholder="Description" value={item.description} onChange={e => handleNestedChange('features', key, 'description', e.target.value)} />
-            </div>
-          ))}
-          <Button onClick={() => handleAddItem('features')}><PlusCircle className="mr-2" size={16}/>Add Feature</Button>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
+      {/* Features */}
       <Card>
-        <CardHeader><CardTitle>Design Options</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          {Object.entries(config.design).map(([key, item]) => (
-            <div key={key} className="grid grid-cols-[1fr_auto] gap-4 items-center">
-              <Input value={item.name} onChange={e => handleNestedChange('design', key, 'name', e.target.value)} />
-              <Input type="number" value={item.price} onChange={e => handleNestedChange('design', key, 'price', parseFloat(e.target.value))} className="w-32" />
-            </div>
-          ))}
+        <CardHeader>
+          <CardTitle className="text-base">Add-on Feature Costs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries(config.features || {}).map(([key, item]) => (
+              <div key={key} className="p-3 border rounded-lg bg-card space-y-1">
+                <span className="font-semibold text-xs">{item.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Price ($):</span>
+                  <Input
+                    type="number"
+                    value={item.price}
+                    onChange={(e) => {
+                      const updated = { ...config.features };
+                      updated[key] = { ...item, price: Number(e.target.value) };
+                      setConfig({ ...config, features: updated });
+                    }}
+                    className="w-24 h-7 text-xs"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
-
-      <div className="flex justify-end mt-8">
-        <Button onClick={handleSave} disabled={isSaving || isLoading} size="lg">
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </div>
     </div>
   );
 };

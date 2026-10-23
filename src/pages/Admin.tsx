@@ -17,7 +17,8 @@ import {
   Pencil,
   Mail,
   Newspaper,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { auth, db } from "../firebase";
@@ -37,15 +38,17 @@ import PlannerManager from "../components/PlannerManager";
 import DocumentGenerator from "@/components/DocumentGenerator";
 import { deleteDoc, doc, updateDoc, collection, getDocs, addDoc } from "firebase/firestore";
 import SEO from "@/components/SEO";
+import { initialTestimonials } from "@/data/testimonialsData";
+import { toast } from "@/components/ui/use-toast";
 
 const Admin = () => {
   const [user, loading] = useAuthState(auth);
-  const { docs: messages, setDocs: setMessages } = useFirestore('messages');
-  const { docs: blogPosts } = useFirestore('blog');
-  const { docs: portfolioItems, setDocs: setPortfolioItems } = useFirestore('portfolio');
-  const { docs: testimonials, setDocs: setTestimonials } = useFirestore('testimonials');
-  const { docs: services, setDocs: setServices } = useFirestore('services');
-  const { docs: newsItems } = useFirestore('news');
+  const { docs: messages, setDocs: setMessages } = useFirestore('messages', !!user);
+  const { docs: blogPosts } = useFirestore('blog', !!user);
+  const { docs: portfolioItems, setDocs: setPortfolioItems } = useFirestore('portfolio', !!user);
+  const { docs: testimonials, setDocs: setTestimonials } = useFirestore('testimonials', !!user);
+  const { docs: services, setDocs: setServices } = useFirestore('services', !!user);
+  const { docs: newsItems } = useFirestore('news', !!user);
 
   const [isPortfolioFormOpen, setIsPortfolioFormOpen] = useState(false);
   const [isFooterFormOpen, setIsFooterFormOpen] = useState(false);
@@ -85,16 +88,9 @@ const Admin = () => {
     const testimonialsCollection = collection(db, 'testimonials');
     let testimonialsSnapshot = await getDocs(testimonialsCollection);
     if (testimonialsSnapshot.empty) {
-        const dummyTestimonials = [
-            {
-                name: "Sarah Johnson",
-                role: "CEO, TechStart Inc.",
-                quote: "Working with this team was a game-changer for our brand. Their design insights and technical expertise are unmatched.",
-                imageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
-                rating: 5,
-            },
-        ];
-        for (const item of dummyTestimonials) { await addDoc(testimonialsCollection, item); }
+        for (const item of initialTestimonials) { 
+          await addDoc(testimonialsCollection, item); 
+        }
         testimonialsSnapshot = await getDocs(testimonialsCollection);
     }
     setTestimonials(testimonialsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -170,6 +166,20 @@ const Admin = () => {
     }
     setIsTestimonialFormOpen(false);
     setSelectedTestimonialItem(null);
+  };
+
+  const handleSeedAllTestimonials = async () => {
+    try {
+      const testimonialsCollection = collection(db, 'testimonials');
+      for (const item of initialTestimonials) {
+        await addDoc(testimonialsCollection, item);
+      }
+      const snapshot = await getDocs(testimonialsCollection);
+      setTestimonials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to seed testimonials";
+      toast({ title: "Failed to seed testimonials", description: message, variant: "destructive" });
+    }
   };
 
   const handleDeleteTestimonialItem = async (id) => {
@@ -278,15 +288,90 @@ const Admin = () => {
               <TabsContent value="vacancies"><VacancyManagement /></TabsContent>
 
               <TabsContent value="testimonials" className="space-y-4">
-                {isTestimonialFormOpen ? <TestimonialForm item={selectedTestimonialItem} onSave={handleSaveTestimonialItem} onCancel={() => { setIsTestimonialFormOpen(false); setSelectedTestimonialItem(null);}}/>
-                : <div>
-                    <div className="flex justify-between items-center mb-4"><h3 className="text-lg font-bold">Testimonials</h3><Button onClick={() => { setSelectedTestimonialItem(null); setIsTestimonialFormOpen(true); }}><Star className="mr-2" size={16} />Add New Testimonial</Button></div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {isTestimonialFormOpen ? (
+                  <TestimonialForm
+                    item={selectedTestimonialItem}
+                    onSave={handleSaveTestimonialItem}
+                    onCancel={() => {
+                      setIsTestimonialFormOpen(false);
+                      setSelectedTestimonialItem(null);
+                    }}
+                  />
+                ) : (
+                  <div>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                      <div>
+                        <h3 className="text-lg font-bold">Client Reviews &amp; Case Studies</h3>
+                        <p className="text-xs text-muted-foreground">Manage client ratings, verified outcome metrics, and modal case study writeups.</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {testimonials.length === 0 && (
+                          <Button variant="outline" size="sm" onClick={handleSeedAllTestimonials}>
+                            <Sparkles className="mr-2" size={14} />Seed Default Case Studies
+                          </Button>
+                        )}
+                        <Button onClick={() => { setSelectedTestimonialItem(null); setIsTestimonialFormOpen(true); }}>
+                          <Star className="mr-2" size={16} />Add New Testimonial
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {testimonials.map(item => (
-                        <Card key={item.id}><CardContent className="p-4 flex flex-col justify-between h-full"><div className="flex-grow"><img src={item.imageUrl} alt={item.name} className="w-20 h-20 rounded-full object-cover mb-4" /><p className='italic'>"{item.quote}"</p></div><div className="mt-4"><h4 className="font-bold">{item.name}</h4><p className="text-sm text-muted-foreground">{item.role}</p></div><div className="flex justify-end gap-2 mt-4"><Button variant="outline" size="sm" onClick={() => { setSelectedTestimonialItem(item); setIsTestimonialFormOpen(true); }}><Pencil size={14} /></Button><Button variant="destructive" size="sm" onClick={() => handleDeleteTestimonialItem(item.id)}><Trash size={14} /></Button></div></CardContent></Card>
+                        <Card key={item.id} className="border-border bg-card hover:shadow-md transition-shadow">
+                          <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
+                            <div>
+                              <div className="flex items-center justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-1 text-amber-500 text-xs font-semibold">
+                                  <Star className="w-3.5 h-3.5 fill-current" />
+                                  <span>{item.rating ?? 5}.0</span>
+                                </div>
+                                {item.outcomeMetric?.value && (
+                                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                                    {item.outcomeMetric.value} {item.outcomeMetric.label}
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="italic text-sm text-foreground/80 line-clamp-3 mb-3">"{item.quote}"</p>
+
+                              {item.caseStudy?.deliverables && (
+                                <div className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                                  <span className="font-semibold text-foreground">Deliverables:</span> {Array.isArray(item.caseStudy.deliverables) ? item.caseStudy.deliverables.join(", ") : item.caseStudy.deliverables}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="pt-3 border-t border-border flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2.5 overflow-hidden">
+                                {item.imageUrl ? (
+                                  <img src={item.imageUrl} alt={item.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                                    {item.name ? item.name.slice(0, 2).toUpperCase() : "PW"}
+                                  </div>
+                                )}
+                                <div className="truncate">
+                                  <h4 className="font-bold text-sm truncate">{item.name}</h4>
+                                  <p className="text-xs text-muted-foreground truncate">{item.role}{item.company ? ` · ${item.company}` : ""}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Button variant="outline" size="sm" onClick={() => { setSelectedTestimonialItem(item); setIsTestimonialFormOpen(true); }}>
+                                  <Pencil size={14} />
+                                </Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDeleteTestimonialItem(item.id)}>
+                                  <Trash size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
                       ))}
                     </div>
-                  </div>}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="messages" className="grid grid-cols-1 md:grid-cols-3 gap-6">

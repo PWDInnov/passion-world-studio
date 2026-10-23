@@ -34,12 +34,21 @@ const LearningCenter = () => {
     fetchArticles();
   }, []);
 
+  const isBlogRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/blog");
+  const canonicalPath = isBlogRoute ? "/blog" : "/learning-center";
+  const pageTitle = isBlogRoute
+    ? "Design & Development Blog | PassionWorld Designs"
+    : "Learning Center & Growth Insights | PassionWorld Designs";
+  const pageDescription = isBlogRoute
+    ? "Read the latest articles on branding trends, UI/UX best practices, software development tips, and digital marketing insights from our team."
+    : "Expert guides and tutorials on graphic design principles, logo branding strategies, modern web design, and digital marketing tactics for businesses.";
+
   return (
     <div className="flex flex-col min-h-screen">
       <SEO
-        title="Design & Digital Growth Learning Center | PassionWorld Designs"
-        description="Practical advice about graphic design, branding, website design, web development, digital marketing, and creative content for growing businesses."
-        canonical="/learning-center"
+        title={pageTitle}
+        description={pageDescription}
+        canonical={canonicalPath}
       />
       <Header />
       <main id="main-content" className="flex-grow">

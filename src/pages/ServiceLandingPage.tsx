@@ -1,126 +1,184 @@
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight, CheckCircle2, Sparkles, Layers, ShieldCheck, Zap } from "lucide-react";
+import { serviceCatalog } from "@/data/serviceCatalog";
 
-type ServiceKey = "graphic-design" | "app-development";
+interface ServiceLandingPageProps {
+  service: "graphic-design" | "app-development" | string;
+}
 
-type ServicePageContent = {
-  title: string;
-  description: string;
-  heading: string;
-  introduction: string;
-  serviceName: string;
-  offeringsHeading: string;
-  offerings: string[];
-  detailHeading: string;
-  detail: string;
-};
+const ServiceLandingPage = ({ service }: ServiceLandingPageProps) => {
+  const isGraphicDesign = service === "graphic-design";
 
-const servicePages: Record<ServiceKey, ServicePageContent> = {
-  "graphic-design": {
-    title: "Graphic Design & Logo Design Services | PassionWorld Designs",
-    description: "Explore graphic design, logo design and brand identity services for your business, including flyers, brochures, packaging and social media graphics.",
-    heading: "Graphic Design Services for Your Brand",
-    introduction: "Create a clear, consistent visual identity with graphic design for your business. From logo design and brand identity to everyday marketing materials, PassionWorld Designs offers creative services to help your brand communicate across print and digital channels.",
-    serviceName: "Graphic Design and Branding",
-    offeringsHeading: "Graphic design services",
-    offerings: [
-      "Logo design and brand identity",
-      "Business cards and company profiles",
-      "Flyers, posters and brochures",
-      "Social media graphics",
-      "Billboards and roll-up banners",
-      "Packaging and menu design",
-    ],
-    detailHeading: "Design for print and digital",
-    detail: "Whether you are launching a new brand or refreshing existing materials, choose design services that fit your business needs. Explore related website and digital services, or get in touch to discuss the assets you need.",
-  },
-  "app-development": {
-    title: "App Development & Custom Software | PassionWorld Designs",
-    description: "Explore mobile app development, web applications and custom software for booking, inventory, point of sale, CRM and other business workflows.",
-    heading: "App Development for Your Business",
-    introduction: "Explore app development and custom software services for the way your business works. PassionWorld Designs offers mobile app development, web applications and business systems such as booking, inventory, point of sale and CRM solutions.",
-    serviceName: "App Development and Custom Software",
-    offeringsHeading: "App and software development services",
-    offerings: [
-      "Mobile app development",
-      "Web application development",
-      "Booking and reservation systems",
-      "Inventory management systems",
-      "Point of sale (POS) systems",
-      "Customer relationship management (CRM) systems",
-    ],
-    detailHeading: "Software for everyday workflows",
-    detail: "Start with the business process you want your software to support. Explore related website and digital services, or contact PassionWorld Designs to discuss your app or software project.",
-  },
-};
+  const config = isGraphicDesign
+    ? {
+        title: "Graphic Design & Brand Identity Solutions",
+        subtitle: "Distinctive, high-impact graphic design, bespoke logo branding, and visual marketing assets tailored to elevate your business.",
+        categoryTitle: "Graphic Design",
+        serviceId: "branding",
+        highlights: [
+          "Bespoke Logo & Brand Identity Systems",
+          "Marketing Collateral & Print Media",
+          "Social Media Content & Ad Creatives",
+          "Packaging & Merchandise Design",
+          "3D Mockups & Product Visuals",
+          "Vector Illustrations & Iconography",
+        ],
+        benefits: [
+          { title: "Tailored to Your Identity", desc: "Every design is crafted from scratch to resonate with your target demographics." },
+          { title: "Vector & Print Ready", desc: "High-resolution deliverables across SVG, PNG, PDF, and CMYK print formats." },
+          { title: "Fast Turnaround", desc: "Rapid concept delivery with iterative client revisions until 100% satisfied." },
+        ],
+      }
+    : {
+        title: "Mobile App & Web Software Development",
+        subtitle: "Native iOS, Android, and cross-platform mobile apps engineered for speed, offline reliability, and delightful user experiences.",
+        categoryTitle: "Software Development",
+        serviceId: "mobile",
+        highlights: [
+          "Native iOS & Android Mobile Apps",
+          "Cross-Platform React Native & Flutter Apps",
+          "Custom Web Applications & Portals",
+          "Interactive Booking & Reservation Engines",
+          "Secure Biometric Auth & Payments",
+          "Real-time Cloud Database Integration",
+        ],
+        benefits: [
+          { title: "Production Architecture", desc: "Built with scalable cloud backends, secure APIs, and responsive UI components." },
+          { title: "Offline & High Performance", desc: "Optimized for lightning-fast launch times and smooth 60fps animations." },
+          { title: "End-to-End Delivery", desc: "From concept wireframes to App Store and Google Play deployment." },
+        ],
+      };
 
-const ServiceLandingPage = ({ service }: { service: ServiceKey }) => {
-  const page = servicePages[service];
-  const canonical = `/${service}`;
-  const serviceSchema = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: page.serviceName,
-    description: page.description,
-    url: `https://www.passionworlddesigns.com${canonical}`,
-    provider: {
-      "@type": "Organization",
-      name: "PassionWorld Designs",
-      url: "https://www.passionworlddesigns.com/",
-    },
-  };
+  const matchedCatalog = serviceCatalog.find(
+    (c) => c.title.toLowerCase().includes(isGraphicDesign ? "graphic" : "software") ||
+           c.title.toLowerCase().includes(isGraphicDesign ? "design" : "website")
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
-        title={page.title}
-        description={page.description}
-        canonical={canonical}
-        structuredData={serviceSchema}
+        title={`${config.title} | PassionWorld Designs`}
+        description={config.subtitle}
+        canonical={`/${service}`}
       />
       <Header />
+
       <main id="main-content" className="flex-1">
-        <section className="bg-gradient-to-br from-background via-muted/30 to-background py-20 text-center">
-          <div className="container mx-auto px-4">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-primary">PassionWorld Designs</p>
-            <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-bold md:text-5xl">{page.heading}</h1>
-            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-muted-foreground">{page.introduction}</p>
-            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
-              <Button asChild size="lg">
-                <Link to="/contact">Discuss your project</Link>
+        {/* Hero Section */}
+        <section className="relative py-20 md:py-28 bg-gradient-to-br from-background via-muted/30 to-background border-b border-border/50">
+          <div className="container mx-auto px-4 max-w-4xl text-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-6">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Dedicated Service Expertise</span>
+            </div>
+
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
+              {config.title}
+            </h1>
+
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10">
+              {config.subtitle}
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 shadow-md"
+              >
+                <Link to={`/start-project?service=${config.serviceId}`} className="flex items-center gap-2">
+                  Start Your Project <ArrowRight className="w-4 h-4" />
+                </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/services">View all services</Link>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto"
+              >
+                <Link to="/portfolio">Explore Our Portfolio</Link>
               </Button>
             </div>
           </div>
         </section>
 
-        <section className="py-16">
-          <div className="container mx-auto grid max-w-5xl gap-12 px-4 md:grid-cols-2 md:items-start">
-            <div>
-              <h2 className="mb-6 text-3xl font-bold">{page.offeringsHeading}</h2>
-              <ul className="grid gap-4">
-                {page.offerings.map((offering) => (
-                  <li key={offering} className="rounded-lg border border-primary/20 bg-card px-5 py-4 text-card-foreground shadow-sm">
-                    {offering}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl bg-muted/40 p-8">
-              <h2 className="mb-4 text-2xl font-bold">{page.detailHeading}</h2>
-              <p className="leading-relaxed text-muted-foreground">{page.detail}</p>
-              <Link to={service === "graphic-design" ? "/app-development" : "/graphic-design"} className="mt-6 inline-flex font-semibold text-primary underline underline-offset-4">
-                {service === "graphic-design" ? "Explore app development" : "Explore graphic design"}
-              </Link>
+        {/* Benefits Strip */}
+        <section className="py-16 bg-muted/20 border-b border-border/40">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {config.benefits.map((b, i) => (
+                <div key={i} className="p-6 rounded-xl bg-card border border-border space-y-2">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
+                    {i === 0 ? <Layers className="w-5 h-5" /> : i === 1 ? <ShieldCheck className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                  </div>
+                  <h3 className="font-bold text-lg text-foreground">{b.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
+
+        {/* Deliverables Checklist */}
+        <section className="py-20 container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground">What We Deliver</h2>
+            <p className="text-muted-foreground mt-2">Comprehensive solutions tailored to your unique brand specifications.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {config.highlights.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-4 rounded-xl border border-border bg-card/60">
+                <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
+                <span className="font-medium text-foreground">{item}</span>
+              </div>
+            ))}
+          </div>
+
+          {matchedCatalog && matchedCatalog.items && (
+            <div className="mt-12 p-6 rounded-2xl bg-muted/30 border border-border/60">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                Available Capabilities &amp; Formats
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {matchedCatalog.items.map((subItem) => (
+                  <Badge key={subItem} variant="secondary" className="px-3 py-1 text-xs">
+                    {subItem}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* CTA Strip */}
+        <section className="py-20 bg-muted/40 border-t border-border">
+          <div className="container mx-auto px-4 text-center max-w-3xl">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-4">
+              Ready to Bring Your Vision to Life?
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground mb-8">
+              Get in touch with our creative and engineering team today to receive a personalized scope and timeline.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 shadow-md"
+            >
+              <Link to={`/start-project?service=${config.serviceId}`}>
+                Request Free Consultation &amp; Quote
+              </Link>
+            </Button>
+          </div>
+        </section>
       </main>
+
       <Footer />
     </div>
   );
